@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>호텔 - PREMIUM 예약</title>
+
+  <!-- 공통 CSS (header / footer / to-top / 기본초기화) -->
+  <link rel="stylesheet" href="common.css">
+
+  <style>
+    /* 페이지 고유 버튼 기본 (공통 CSS엔 없음) */
+    button { font-family: inherit; cursor: pointer; }
+
+
+    /* ========== 배너 ========== */
+    .hero {
+      width: 100%;
+      aspect-ratio: 2000 / 400;
+      position: relative;
+    }
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .hero-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+      z-index: 5;
+    }
+
+    .hero-title { font-size: 2rem; letter-spacing: 3px; margin-bottom: 10px; }
+    .hero-desc { font-size: 0.95rem; letter-spacing: 1px; }
+
+
+    /* ========== 섹션 ========== */
+    .section {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 80px 20px;
+    }
+
+    .section-title {
+      font-size: 28px;
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 50px;
+      font-weight: normal;
+    }
+
+
+    /* ========== 좌우 2단 배치 ========== */
+    .detail-row {
+      display: flex;
+      gap: 50px;
+    }
+
+    .detail-left { flex: 1; }
+    .detail-right { flex: 1; }
+
+
+    /* ---------- 왼쪽: 사진 ---------- */
+    .main-photo {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .thumb-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .thumb {
+      width: 80px;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    .thumb:hover,
+    .thumb.active { opacity: 1; }
+
+    .room-desc {
+      font-size: 13px;
+      line-height: 1.8;
+      color: #555;
+    }
+
+
+    /* ---------- 오른쪽: 달력 ---------- */
+    .cal-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 20px;
+    }
+
+    .cal-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    /* 이전 달로 갈 수 없을 때 비활성화 */
+    .cal-btn:disabled {
+      color: #ccc;
+      cursor: default;
+    }
+
+    .cal-title { font-size: 15px; }
+
+    /* 달력 = 7칸 그리드 */
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .cal-day-name {
+      font-size: 13px;
+      padding: 10px 0;
+      color: #333;
+    }
+
+    .cal-day-name.sun { color: #e74c3c; }
+
+    /* 날짜 칸: 모든 칸 동일 고정 높이 + flexbox 중앙 정렬 */
+    .cal-date {
+      font-size: 13px;
+      height: 56px;             /* 라벨 한 줄까지 포함한 고정 높이 (선택 여부 무관) */
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;   /* 숫자 위, 라벨 아래 */
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;         /* 라벨이 들어와도 칸 높이가 늘어나지 않게 */
+      gap: 2px;
+    }
+
+    .cal-date.other-month { color: #ccc; cursor: default; }
+    .cal-date.sun { color: #e74c3c; }
+
+    /* 예약완료 - 클릭 불가 (빨간 라벨 + 회색조 흐림 + 클릭 차단 커서) */
+    .cal-date.booked {
+      color: #999;              /* 날짜 숫자는 회색조로 흐리게 */
+      cursor: not-allowed;      /* 클릭 불가능 시각 표시 */
+      opacity: 0.6;             /* 전체 칸을 흐리게 → 선택 불가 느낌 */
+    }
+
+    /* 지난 날짜 - 클릭 불가 (회색) */
+    .cal-date.past {
+      color: #ccc;
+      cursor: default;
+    }
+
+    /* 라벨(::after) 공간을 미리 확보: 라벨이 없는 칸도 같은 높이 유지 */
+    .cal-date::after {
+      content: "";              /* 기본 빈 공간 (자리만 차지) */
+      display: block;
+      font-size: 9px;
+      line-height: 1;
+      min-height: 11px;         /* 라벨 한 줄 높이 확보 → 모든 칸 동일 높이 */
+    }
+
+    /* "예약완료" 라벨 - 선명한 빨간색 (opacity 영향 받지 않게 따로 색 지정) */
+    .cal-date.booked::after {
+      content: "예약완료";
+      color: #ff0000;           /* 빨간색으로 작게 표시 */
+    }
+
+    /* ---------- 범위 선택 (초록) ---------- */
+    .cal-date.in-range {
+      background: #22c55e;
+      color: #fff;
+    }
+
+    .cal-date.range-start::after {
+      content: "입실";
+    }
+
+    .cal-date.range-end::after {
+      content: "퇴실";
+    }
+
+    .cal-date:not(.other-month):not(.booked):not(.in-range):hover {
+      background: #f0f0f0;
+      border-radius: 4px;
+    }
+
+
+    /* ---------- 추가 인원 ---------- */
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 24px;
+    }
+
+    .option-label { font-size: 14px; }
+
+    .option-row select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      font-size: 13px;
+    }
+
+    .option-note {
+      font-size: 12px;
+      color: #999;
+    }
+
+
+    /* ---------- 총 합계 ---------- */
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .total-label { font-size: 14px; }
+
+    .total-price {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+
+    /* ---------- 버튼 2개 ---------- */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+    }
+
+    .btn-cancel { background: #fff; color: #333; }
+
+    .btn-submit {
+      background: #2b2b2b;
+      color: #fff;
+      border-color: #2b2b2b;
+    }
+
+    .btn-submit:hover { background: #444; }
+
+
+    /* ---------- 모달 (경고 팝업) ---------- */
+    .modal-backdrop {
+      display: none;              /* 평소엔 숨김 */
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal {
+      background: #fff;
+      padding: 40px 60px;
+      text-align: center;
+    }
+
+    .modal p {
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .modal button {
+      background: #2b2b2b;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      font-size: 13px;
+    }
+
+
+    /* ========== 반응형 (1000px 이하) — 페이지 고유 규칙만 ==========
+       header 반응형은 common.css로 이동. */
+    @media (max-width: 1000px) {
+      .detail-row { flex-direction: column; }
+
+      /* 모바일: 양쪽 칸 모두 가로폭 100% 꽉 채우기 (이미지 작게/오른쪽 빈 공간 해결) */
+      .detail-left { width: 100%; flex: none; }
+      .detail-right { width: 100%; flex: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== 헤더 (공통 컴포넌트로 불러옴) ===== -->
+  <div id="header-slot"></div>
+
+
+  <!-- ===== 배너 ===== -->
+  <div class="hero">
+    <img class="hero-img" src="image/reservation2.jpg" alt="실시간예약 배너">
+    <div class="hero-text">
+      <h2 class="hero-title">RESERVATION</h2>
+      <p class="hero-desc">실시간예약</p>
+    </div>
+  </div>
+
+
+  <!-- ===== 객실 상세 + 예약 ===== -->
+  <section class="section">
+    <h2 class="section-title">PREMIUM</h2>
+
+    <div class="detail-row">
+
+      <!-- 왼쪽: 사진 -->
+      <div class="detail-left">
+        <img class="main-photo" id="mainPhoto" src="image/prm1.jpg" alt="프리미엄 객실">
+
+        <div class="thumb-row">
+          <img class="thumb active" src="image/prm1.jpg" alt="사진1">
+          <img class="thumb" src="image/prm2.jpg" alt="사진2">
+          <img class="thumb" src="image/prm3.jpg" alt="사진3">
+          <img class="thumb" src="image/prm4.jpg" alt="사진4">
+        </div>
+
+        <p class="room-desc">
+          프리미엄 층에 위치한 넓은 객실로, 고급스러운 인테리어와 프라이빗 라운지 이용 혜택이 제공되는 럭셔리 룸입니다.<br>
+          A premium room is located on a higher floor, featuring luxurious interiors and access to a private lounge.
+        </p>
+      </div>
+
+      <!-- 오른쪽: 달력 + 예약 -->
+      <div class="detail-right">
+
+        <div class="cal-header">
+          <button class="cal-btn" id="prevBtn">&lt;</button>
+          <span class="cal-title" id="calTitle">2025년 05월</span>
+          <button class="cal-btn" id="nextBtn">&gt;</button>
+        </div>
+
+        <!-- 달력 본체 (JS가 채움) -->
+        <div class="calendar" id="calendar"></div>
+
+        <!-- 추가 인원 -->
+        <div class="option-row">
+          <span class="option-label">추가 인원</span>
+          <select id="extraPerson">
+            <option value="0">없음</option>
+            <option value="1">1명</option>
+            <option value="2">2명</option>
+          </select>
+          <span class="option-note">기준 인원 2명, 추가 시 한 명당 객실 가격의 20%</span>
+        </div>
+
+        <!-- 총 합계 -->
+        <div class="total-row">
+          <span class="total-label">총 합계</span>
+          <span><span class="total-price" id="totalPrice">150,000</span> 원</span>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="btn-row">
+          <button class="btn btn-cancel" id="cancelBtn">취소</button>
+          <button class="btn btn-submit">예약하기</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== 푸터 (공통 컴포넌트로 불러옴) ===== -->
+  <div id="footer-slot"></div>
+
+
+  <!-- ===== 맨 위로 버튼 (공통 컴포넌트로 불러옴) ===== -->
+  <div id="to-top-slot"></div>
+
+
+  <!-- ===== 경고 모달 ===== -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <p id="modalMsg"></p>
+      <button id="modalConfirm">확인</button>
+    </div>
+  </div>
+
+
+  <!-- 공통 스크립트: 컴포넌트 로드 + 모바일 메뉴 + 맨 위로 버튼 -->
+  <script src="common.js"></script>
+
+  <script>
+    // (모바일 메뉴 / 맨 위로 버튼 로직은 common.js로 이동)
+
+    // ========== 3. 썸네일 클릭 → 큰 사진 교체 ==========
+    const mainPhoto = document.getElementById("mainPhoto");
+    const thumbs = document.querySelectorAll(".thumb");
+
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener("click", () => {
+        mainPhoto.src = thumb.src;
+        thumbs.forEach(t => t.classList.remove("active"));
+        thumb.classList.add("active");
+      });
+    });
+
+
+    // ========== 4. 달력 (범위 선택) ==========
+    const ROOM_PRICE = 200000;    // ← 객실별로 이 숫자만 바꾸면 됨
+    const MAX_NIGHTS = 6;         // 최대 6박
+
+    // ========== 요금표 (reservation1.html 기준) ==========
+    // 성수기(07.01~09.30) / 비수기(그 외) × 요일(주중/주말/휴일)
+    const PRICE_TABLE = {
+      off: {                       // 비수기 (10.01 ~ 06.30)
+        weekday: 200000,           // 주중(월~금)
+        weekend: 250000,           // 주말(토)
+        holiday: 280000            // 휴일(일)
+      },
+      peak: {                       // 성수기 (07.01 ~ 09.30)
+        weekday: 250000,
+        weekend: 280000,
+        holiday: 320000
+      }
+    };
+
+    // 해당 날짜가 성수기(7~9월)인지 판별 → 요금표 세트 선택
+    function isPeakSeason(date) {
+      const month = date.getMonth() + 1;   // 1~12
+      return month >= 7 && month <= 9;
+    }
+
+    // 날짜 → 요금 반환 (성수기/비수기 + 요일 구분)
+    function priceByDay(date) {
+      const season = isPeakSeason(date) ? PRICE_TABLE.peak : PRICE_TABLE.off;
+      const dow = date.getDay();
+      if (dow === 6) return season.weekend;   // 토 → 주말
+      if (dow === 0) return season.holiday;   // 일 → 휴일
+      return season.weekday;                  // 월~금 → 주중
+    }
+    // ========== 예약완료 날짜 (localStorage 영속성) ==========
+    // 객실별 키: reservation4에서 최종 예약 완료 시 같은 키로 저장한다.
+    const ROOM_KEY = "booked_PREMIUM";
+    const DEMO_BOOKED = ["2025-05-20", "2025-05-21", "2025-05-29", "2025-05-30", "2025-05-31"];
+
+    // localStorage에서 저장된 예약 날짜 불러오기 (없으면 빈 배열)
+    function loadBookedFromStorage() {
+      try {
+        const raw = localStorage.getItem(ROOM_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // 데모 예약 + 사용자가 저장한 예약을 합쳐서 중복 제거
+    const BOOKED = Array.from(new Set([...DEMO_BOOKED, ...loadBookedFromStorage()]));
+
+    // 오늘 기준
+    const TODAY = new Date();
+    TODAY.setHours(0, 0, 0, 0);  // 시간 제거 (날짜만 비교)
+    // "YYYY-MM-DD" 문자열로 변환 (로컬 기준)
+    const TODAY_STR =
+      TODAY.getFullYear() + "-" +
+      String(TODAY.getMonth() + 1).padStart(2, "0") + "-" +
+      String(TODAY.getDate()).padStart(2, "0");
+
+    let viewYear = TODAY.getFullYear();
+    let viewMonth = TODAY.getMonth() + 1;   // 오늘이 속한 달로 열기
+    let startDate = null;    // 입실일
+    let endDate = null;      // 퇴실일
+
+    const calendarEl = document.getElementById("calendar");
+    const calTitleEl = document.getElementById("calTitle");
+    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+
+    function renderCalendar() {
+      calendarEl.innerHTML = "";
+      calTitleEl.textContent = `${viewYear}년 ${String(viewMonth).padStart(2, "0")}월`;
+
+      // 요일 이름 줄
+      dayNames.forEach((name, i) => {
+        const el = document.createElement("div");
+        el.className = "cal-day-name" + (i === 0 ? " sun" : "");
+        el.textContent = name;
+        calendarEl.appendChild(el);
+      });
+
+      const firstDay = new Date(viewYear, viewMonth - 1, 1).getDay();
+      const lastDate = new Date(viewYear, viewMonth, 0).getDate();
+      const prevLastDate = new Date(viewYear, viewMonth - 1, 0).getDate();
+
+      // 앞쪽 빈칸 (지난달)
+      for (let i = firstDay - 1; i >= 0; i--) {
+        addDateCell(prevLastDate - i, "other-month");
+      }
+
+      // 이번 달 날짜
+      for (let d = 1; d <= lastDate; d++) {
+        const dateStr = `${viewYear}-${String(viewMonth).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+        const dayOfWeek = new Date(viewYear, viewMonth - 1, d).getDay();
+
+        let cls = "";
+        if (BOOKED.includes(dateStr)) cls = "booked";
+        else if (dayOfWeek === 0) cls = "sun";
+
+        // 지난 날짜 (오늘 이전) → 회색 + 클릭 불가
+        if (dateStr < TODAY_STR) cls = "past";
+
+        // 선택 범위 표시
+        if (startDate && endDate && dateStr >= startDate && dateStr <= endDate) {
+          cls += " in-range";
+          if (dateStr === startDate) cls += " range-start";
+          if (dateStr === endDate) cls += " range-end";
+        } else if (startDate && dateStr === startDate) {
+          cls += " in-range range-start";
+        }
+
+        addDateCell(d, cls, dateStr);
+      }
+
+      // 뒤쪽 빈칸 (다음달)
+      const remain = 42 - (firstDay + lastDate);
+      for (let d = 1; d <= remain; d++) {
+        addDateCell(d, "other-month");
+      }
+
+      // 이전 달 버튼 활성/비활성 갱신
+      updateNavButtons();
+    }
+
+    // 날짜 칸 하나 만들기
+    function addDateCell(num, cls, dateStr) {
+      const el = document.createElement("div");
+      el.className = "cal-date " + cls;
+      el.textContent = num;
+
+      if (dateStr && !cls.includes("booked") && !cls.includes("other-month") && !cls.includes("past")) {
+        el.addEventListener("click", () => handleDateClick(dateStr));
+      }
+
+      calendarEl.appendChild(el);
+    }
+
+    // 날짜 클릭 처리
+    function handleDateClick(dateStr) {
+      // 아직 시작일 없음 or 이미 범위 완성 → 새로 시작
+      if (!startDate || endDate) {
+        startDate = dateStr;
+        endDate = null;
+      }
+      // 시작일보다 앞 → 시작일 교체
+      else if (dateStr < startDate) {
+        startDate = dateStr;
+      }
+      // 끝일 선택
+      else {
+        const nights = countNights(startDate, dateStr);
+
+        if (nights >= MAX_NIGHTS) {
+          openModal(`최대 ${MAX_NIGHTS - 1}박까지 예약 가능합니다.`);
+          startDate = null;
+          endDate = null;
+        } else if (hasBookedBetween(startDate, dateStr)) {
+          openModal("선택 구간에 예약완료된 날짜가 있습니다.");
+          startDate = null;
+          endDate = null;
+        } else {
+          endDate = dateStr;
+        }
+      }
+
+      renderCalendar();
+      updateTotal();
+    }
+
+    // 두 날짜 사이 박 수 (밀리초 차이 ÷ 하루)
+    function countNights(a, b) {
+      const d1 = new Date(a);
+      const d2 = new Date(b);
+      return (d2 - d1) / (1000 * 60 * 60 * 24);
+    }
+
+    // 구간에 예약완료 날짜가 끼어있는지
+    function hasBookedBetween(a, b) {
+      return BOOKED.some(d => d > a && d <= b);
+    }
+
+    // 이전/다음 달 버튼
+    const prevBtnEl = document.getElementById("prevBtn");
+    const nextBtnEl = document.getElementById("nextBtn");
+
+    function isThisMonth() {
+      return viewYear === TODAY.getFullYear() && viewMonth === TODAY.getMonth() + 1;
+    }
+
+    function updateNavButtons() {
+      // 현재 보는 달이 이번 달이면 더 이전 달로 못 가게 비활성화
+      prevBtnEl.disabled = isThisMonth();
+    }
+
+    prevBtnEl.addEventListener("click", () => {
+      if (isThisMonth()) return;   // 안전장치: 이번 달이면 이동 금지
+      viewMonth--;
+      if (viewMonth < 1) { viewMonth = 12; viewYear--; }
+      renderCalendar();
+    });
+
+    nextBtnEl.addEventListener("click", () => {
+      viewMonth++;
+      if (viewMonth > 12) { viewMonth = 1; viewYear++; }
+      renderCalendar();
+    });
+
+
+    // ========== 5. 총 합계 (박 수 × 가격) ==========
+    const extraPersonEl = document.getElementById("extraPerson");
+    const totalPriceEl = document.getElementById("totalPrice");
+
+    function updateTotal() {
+      // 날짜가 둘 다 선택되어야 계산, 아니면 0원(취소/초기 상태)
+      if (!startDate || !endDate) {
+        totalPriceEl.textContent = "0";
+        return;
+      }
+
+      const extra = Number(extraPersonEl.value);   // 추가 인원 수
+
+      // 체크인 ~ 체크아웃 전날까지(체크아웃 제외) 각 날짜 요금 합산
+      let total = 0;
+      const cur = new Date(startDate);
+      const last = new Date(endDate);   // 이 날은 포함하지 않음
+      for (let i = 0; cur < last; i++) {
+        let dayPrice = priceByDay(cur);
+        dayPrice += dayPrice * 0.2 * extra;   // 추가 인원: 각 날짜 요금의 20% × 인원
+        total += dayPrice;
+        cur.setDate(cur.getDate() + 1);       // 다음 날로 이동
+      }
+
+      totalPriceEl.textContent = total.toLocaleString();
+    }
+
+    extraPersonEl.addEventListener("change", updateTotal);
+
+
+    // ========== 6. 취소 버튼 (선택 초기화) ==========
+    document.getElementById("cancelBtn").addEventListener("click", () => {
+      startDate = null;
+      endDate = null;
+      extraPersonEl.value = "0";
+      renderCalendar();
+      updateTotal();
+    });
+
+
+    // ========== 7. 모달 ==========
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalMsg = document.getElementById("modalMsg");
+
+    function openModal(msg) {
+      modalMsg.textContent = msg;
+      modalBackdrop.style.display = "flex";
+    }
+
+    document.getElementById("modalConfirm").addEventListener("click", () => {
+      modalBackdrop.style.display = "none";
+    });
+
+
+    // 페이지 열리면 실행
+    renderCalendar();
+    updateTotal();
+
+    // 예약하기 → reservation4로 정보 넘기기
+document.querySelector(".btn-submit").addEventListener("click", () => {
+  if (!startDate || !endDate) {
+    openModal("날짜를 선택해 주세요.");
+    return;
+  }
+
+  const params = new URLSearchParams({
+    room: "PREMIUM",
+    extra: extraPersonEl.value,
+    start: startDate,
+    end: endDate,
+    total: totalPriceEl.textContent
+  });
+
+  window.location.href = "reservation4.html?" + params.toString();
+});
+  </script>
+
+</body>
+</html>

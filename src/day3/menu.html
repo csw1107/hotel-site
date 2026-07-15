@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+
+  <style>
+    
+    :root { --color-primary: #4a90e2; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+    }
+    .menu-board {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      width: 320px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.1);
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--color-primary);
+    }
+    ul { list-style: none; }
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 4px;
+      border-bottom: 1px solid #e4cccc;
+      font-size: 16px;
+    }
+    .total-row {
+  justify-content: flex-end;
+}
+  
+  </style>
+</head>
+<body>
+
+  <div class="menu-board">
+  <h1>오늘의 메뉴</h1>
+  <ul id="menuList"></ul>
+</div>
+
+  <script>
+      const menu = [
+      { name: "아메리카노", price: 4000, category: "커피" },
+      { name: "카페라떼",   price: 4500, category: "커피" },
+      { name: "바닐라라떼", price: 5000, category: "커피" },
+      { name: "치즈케이크", price: 6500, category: "디저트" },
+      { name: "마카롱", price: 3000, category: "디저트" },
+    ];
+
+    const menuList = document.querySelector("#menuList");
+
+    let html = "";
+
+    for (let i = 0; i < menu.length; i++) {
+      html += `<li><span>${menu[i].name} (${menu[i].category})</span><span>${menu[i].price}원</span></li>`;
+    }
+
+    menuList.innerHTML = html;
+
+    let total = 0;
+    for (let i = 0; i < menu.length; i++) {
+      total += menu[i].price;
+    }
+    html += `<li class="total-row"><span>총 합계: ${total}원</span></li>`;
+    menuList.innerHTML = html;
+    
+  </script>
+</body>
+</html>

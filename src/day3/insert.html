@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>요소 삽입</title>
+    <style>
+        body { padding: 40px 16px; }
+        .board { max-width: 480px; margin: 0 auto; }
+
+        input, button {
+          padding: 10px 14px;
+          font-size: 15px;
+          border-radius: 8px;
+        }
+        button {
+          border: none;
+          background: #4a90e2;
+          color: white;
+          cursor: pointer;
+        }
+        .card {
+          padding: 14px;
+          margin-top: 10px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="board">
+      <input id="text" placeholder="카드 내용">
+      <button id="addTop">맨 앞에 추가</button>
+      <button id="addBottom">맨 뒤에 추가</button>
+      <button id="dup">마지막 카드 복제</button>
+
+      <div id="list">
+        <div class="card">샘플 카드</div>
+      </div>
+    </div>
+
+    <script>const text = document.querySelector("#text");   // 입력칸 집어오기
+    const list = document.querySelector("#list");    // 카드 담을 그릇 집어오기
+
+    function makeCard() {
+    return `<div class="card">${text.value}</div>`;
+    }
+        document.querySelector("#addTop").addEventListener("click", function() {
+    list.insertAdjacentHTML("afterbegin", makeCard());
+    });
+
+    document.querySelector("#addBottom").addEventListener("click", function() {
+    list.insertAdjacentHTML("beforeend", makeCard());
+    });
+
+        document.querySelector("#dup").addEventListener("click", function() {
+    const cards = document.querySelectorAll(".card");
+    const last = cards[cards.length - 1];
+    const copy = last.cloneNode(true);
+    list.appendChild(copy);
+    });
+    </script>
+</body>
+</html>

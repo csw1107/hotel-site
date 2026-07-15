@@ -1,0 +1,35 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "안녕",
+      "content": "ㅇㄹ"
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "img": "event/event1.jpg",
+      "alt": "봄 특가 이벤트",
+      "title": "봄 특가 이벤트"
+    },
+    {
+      "id": 2,
+      "img": "event/event2.jpg",
+      "alt": "5월 주요행사",
+      "title": "5월 주요행사"
+    },
+    {
+      "id": 3,
+      "img": "event/event3.jpg",
+      "alt": "새로운 객실 오픈",
+      "title": "새로운 객실을 기대해 주세요."
+    },
+    {
+      "id": 4,
+      "img": "event/event4.jpg",
+      "alt": "스파 프로그램 할인",
+      "title": "스파 프로그램 할인"
+    }
+  ]
+}

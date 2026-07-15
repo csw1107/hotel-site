@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모달</title>
+    <style>
+       .backdrop {
+  display: none;                /* 평소엔 숨김 */
+  position: fixed;
+  inset: 0;                     /* 화면 전체 */
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  text-align: center;
+}
+    </style>
+</head>
+<body>
+    <button id="openBtn">모달 열기</button>
+
+<div id="backdrop" class="backdrop">
+  <div class="modal">
+    <p>확인 버튼을 누르거나 배경을 누르면 닫힙니다.</p>
+    <button id="confirmBtn">확인</button>
+  </div>
+</div>
+
+<script>const openBtn = document.querySelector("#openBtn");
+const backdrop = document.querySelector("#backdrop");
+const confirmBtn = document.querySelector("#confirmBtn");
+
+openBtn.addEventListener("click", () => {
+  backdrop.style.display = "flex";
+});
+
+confirmBtn.addEventListener("click", () => {
+  backdrop.style.display = "none";
+});
+
+backdrop.addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) {
+    backdrop.style.display = "none";
+  }
+});
+</script>
+</body>
+</html>

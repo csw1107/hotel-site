@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>아이콘 버튼 실습</title>
+  <script src="https://kit.fontawesome.com/74ab99fe15.js" crossorigin="anonymous"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      gap: 16px;
+      background: #f0f2f5;
+      min-height: 100vh;         /* 화면 높이를 꽉 채움 */
+      justify-content: center;   /* 가로 가운데 */
+      align-items: center;       /* 세로 가운데 */
+    }
+
+    .icon-btn {
+      width: 60px;
+      height: 60px;
+      border: none;
+      border-radius: 50%;      /* 동그란 버튼 */
+      background: white;
+      color: #999;             /* 평소엔 회색 아이콘 */
+      font-size: 22px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;  /* 부드럽게 변화 */
+    }
+
+    .icon-btn:hover {
+      background: #4a90e2;     /* 마우스 올리면 파란 배경 */
+      color: rgb(245, 241, 241);            /* 아이콘도 흰색으로 */
+    }
+    .c1 { color: #e74c3c; }
+.c2 { color: #f39c12; }
+.c3 { color: #2ecc71; }
+.c4 { color: #3498db; }
+.c5 { color: #9b59b6; }
+  </style>
+</head>
+<body>
+
+  <button class="icon-btn c1"><i class="fa-solid fa-house"></i></button>
+<button class="icon-btn c2"><i class="fa-regular fa-envelope"></i></button>
+<button class="icon-btn c3"><i class="fa-solid fa-heart"></i></button>
+<button class="icon-btn c4"><i class="fa-solid fa-magnifying-glass"></i></button>
+<button class="icon-btn c5"><i class="fa-solid fa-user"></i></button>
+
+</body>
+</html>

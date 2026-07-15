@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+      background-color: #f0f2f5;
+    }
+        .calendar {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;          /* 24px → 32px, 여백도 살짝 키움 */
+    max-width: 600px;       /* 480px → 600px로 확 키움 */
+    box-shadow: 0 4px 24px rgba(0,0,0,.1);
+    }
+    .weekdays, .days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;               /* 4px → 8px */
+    text-align: center;
+    }
+    .days div {
+    padding: 16px 0;        /* 10px → 16px, 칸 자체도 커짐 */
+    border-radius: 8px;
+    }
+    .days div:hover {
+      background-color: #eef3fb;
+    }
+    .today {
+      background: #3b82f6;
+      color: white;
+    }
+        .btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 80px;              /* ← 이거 추가 */
+    margin-bottom: 30px;
+    }
+    .btn button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .title {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="calendar">
+    <div class="btn">
+      <button id="prevMonth">◀</button>
+      <h1 id="title" class="title">달력</h1>
+      <button id="nextMonth">▶</button>
+    </div>
+    
+    <div class="weekdays">
+      <span>일</span><span>월</span><span>화</span>
+      <span>수</span><span>목</span><span>금</span><span>토</span>
+    </div>
+    <div id="days" class="days"></div>
+  </div>
+
+  <script type="module">
+    const today = new Date();
+
+    // ★ const → let 으로 변경 (버튼 누르면 값이 바뀌어야 하니까)
+    let year = today.getFullYear();
+    let month = today.getMonth();   // 0부터
+
+    const days = document.querySelector("#days");
+    const title = document.querySelector("#title");
+
+    // ★ 기존 코드를 함수로 통째로 감쌈
+    function renderCalendar() {
+      // 이전에 그렸던 날짜 칸 싹 지우기 (안 지우면 계속 쌓임)
+      days.innerHTML = "";
+
+      // 그 달 1일의 요일 (0~6)
+      const firstDay = new Date(year, month, 1).getDay();
+      // 그 달의 마지막 날짜
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      // 제목 표시 (month는 0부터이므로 +1)
+      title.textContent = `${year}년 ${month + 1}월`;
+
+      // 1일 요일만큼 빈 칸을 먼저 넣는다
+      for (let i = 0; i < firstDay; i++) {
+        const blank = document.createElement("div");
+        days.appendChild(blank);
+      }
+
+      // 1일부터 마지막 날까지 숫자 칸을 채운다
+      for (let date = 1; date <= lastDate; date++) {
+        const cell = document.createElement("div");
+        cell.textContent = date;
+        days.appendChild(cell);
+
+        // 오늘 날짜 강조 (연/월도 같이 맞아야 진짜 오늘)
+        if (
+          date === today.getDate() &&
+          month === today.getMonth() &&
+          year === today.getFullYear()
+        ) {
+          cell.classList.add("today");
+        }
+
+        // 주말 색칠
+        if ((date + firstDay - 1) % 7 === 0) {
+          cell.style.color = "red";       // 일요일
+        } else if ((date + firstDay - 1) % 7 === 6) {
+          cell.style.color = "blue";      // 토요일
+        }
+
+        // 날짜 클릭 시 alert
+        cell.addEventListener("click", () => {
+          alert(`${year}년 ${month + 1}월 ${date}일을 클릭했어요`);
+        });
+      }
+    }
+
+    // 처음 화면 열릴 때 1번 실행
+    renderCalendar();
+
+    // ★ 이전달 버튼
+    document.querySelector("#prevMonth").addEventListener("click", () => {
+      month--;
+      if (month < 0) {
+        month = 11;
+        year--;
+      }
+      renderCalendar();
+    });
+
+    // ★ 다음달 버튼
+    document.querySelector("#nextMonth").addEventListener("click", () => {
+      month++;
+      if (month > 11) {
+        month = 0;
+        year++;
+      }
+      renderCalendar();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>드롭다운 메뉴</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; }
+  .navbar { background: #2c3e50; }
+
+  /* 메뉴를 가로로 나열 */
+  .menu { list-style: none; display: flex; }
+
+  /* 메뉴 항목 하나하나 (li) - 기준점 역할 */
+  .menu > li {
+    position: relative;  /* 하위 메뉴가 이걸 기준으로 위치 잡음 */
+  }
+  .menu > li > a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 16px 20px;
+  }
+  .menu > li:hover > a { background: #34495e; }
+
+  /* 하위 메뉴 (평소엔 숨겨짐) */
+  .sub {
+    position: absolute;
+    top: 100%;      /* 부모 li 바로 아래 */
+    left: 0;
+    min-width: 160px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    opacity: 0;        /* 평소 투명 */
+    visibility: hidden; /* 평소 숨김 */
+    transition: opacity 0.2s;
+     list-style: none; 
+  }
+
+  /* 마우스를 li에 올리면 하위 메뉴 보이기 */
+  .menu li:hover .sub {
+    opacity: 1;
+    visibility: visible;
+  }
+  .sub li a:hover { background: #f0f3f7; }
+  .sub li a { display: block; padding: 10px 16px; color: #333; text-decoration: none; }
+</style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <ul class="menu">
+      <li><a href="#">홈</a></li>
+      <li>
+        <a href="#">제품</a>
+        <ul class="sub">
+          <li><a href="#">노트북</a></li>
+          <li><a href="#">태블릿</a></li>
+          <li><a href="#">스마트폰</a></li>
+        </ul>
+      </li>
+      <li>
+  <a href="#">회사소개</a>
+  <ul class="sub">
+    <li><a href="#">인사말</a></li>
+    <li><a href="#">오시는 길</a></li>
+  </ul>
+</li>
+      <li><a href="#">문의</a></li>
+    </ul>
+  </nav>
+
+</body>
+</html>

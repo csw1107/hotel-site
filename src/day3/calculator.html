@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>계산기</title>
+
+  <style>
+    :root {
+      --color-primary: #4a90e2;
+      --color-hover: #2266cc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex; justify-content: center;
+      align-items: center; min-height: 100vh;
+      background-color: #f0f2f5;
+    }
+    .calculator {
+      background: white; border-radius: 16px;
+      padding: 32px; width: 360px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,.1);
+    }
+    .inputs { display: flex; gap: 8px; margin-bottom: 16px; }
+    input, select {
+      padding: 10px; border: 1px solid #ddd;
+      border-radius: 8px; font-size: 16px;
+    }
+    input { flex: 1; min-width: 0; }
+    button {
+      width: 100%; padding: 12px; border: none;
+      background-color: var(--color-primary);
+      color: white; border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover { background-color: var(--color-hover); }
+    #result {
+      margin-top: 16px; font-size: 18px;
+      color: #2c3e50; min-height: 28px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <h1>계산기</h1>
+    <div class="inputs">
+      <input id="num1" type="number">
+      <select id="operator">
+        <option value="+">+</option>
+        <option value="-">-</option>
+        <option value="*">×</option>
+        <option value="/">÷</option>
+      </select>
+      <input id="num2" type="number">
+    </div>
+    <button id="calcBtn">계산하기</button>
+    <p id="result">...</p>
+  </div>
+
+  <script>
+    function calculate(num1, num2, op) {
+      if (op === "+") return num1 + num2;
+      if (op === "-") return num1 - num2;
+      if (op === "*") return num1 * num2;
+      if (op === "/") {
+        if (num2 === 0) return "0으로 나눌 수 없습니다";
+        return num1 / num2;
+      }
+    }
+
+    const btn = document.querySelector("#calcBtn");
+    const result = document.querySelector("#result");
+
+    btn.addEventListener("click", function() {
+      const num1 = Number(document.querySelector("#num1").value);
+      const num2 = Number(document.querySelector("#num2").value);
+      const op = document.querySelector("#operator").value;
+
+      const answer = calculate(num1, num2 , op);
+      result.innerHTML = `결과: ${answer}`;
+    });
+  </script>
+</body>
+</html>

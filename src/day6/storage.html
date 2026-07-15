@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>storage</title>
+</head>
+<body>
+  <div id="local"></div>
+  <div id="session"></div>
+
+  <script type="module">
+    //localStorage.setItem("test", 1);
+   // sessionStorage.setItem("test", 2);
+
+    window.onload = () => {
+      document.querySelector("#local").textContent =
+        `localStorage : ${localStorage.getItem("test")}`;
+      document.querySelector("#session").textContent =
+        `sessionStorage : ${sessionStorage.getItem("test")}`;
+    };
+  </script>
+</body>
+</html>

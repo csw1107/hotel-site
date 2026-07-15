@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script type="module">
+        const movies = [
+            { id: 1, title: "인터스텔라", year: 2014, rating: 8.6 },
+            { id: 2, title: "기생충", year: 2019, rating: 8.5 },
+            { id: 3, title: "라라랜드", year: 2016, rating: 8.0 },
+            { id: 4, title: "올드보이", year: 2003, rating: 8.4 },
+        ];
+
+        // 1. 모든 영화 제목만 담은 배열
+        const titles = movies.map(function(movie) {
+            return movie.title;
+        });
+        console.log(titles);
+
+        // 2. 평점 8.5 이상인 영화만 거르기
+        const highRated = movies.filter(function(movie) {
+            return movie.rating >= 8.5;
+        });
+        console.log(highRated);
+
+        // 3. 2010년 이후 개봉작의 제목만 추출 (filter + map 체이닝)
+        const recentTitles = movies
+            .filter(function(movie) {
+                // 여기 채워보세요 (힌트: movie.year >= 2010)
+                return movie.year >= 2010;
+            })
+            .map(function(movie) {
+                // 여기 채워보세요 (힌트: movie.title 반환)
+                return movie.title;
+            });
+        console.log(recentTitles);
+
+        // 4. 제목이 "기생충"인 영화 찾기
+        const parasite = movies.find(function(movie) {
+            // 다음에 이어서 채워볼게요
+            return movie.title === "기생충";
+        });
+        console.log(parasite);
+    </script>
+</body>
+</html>

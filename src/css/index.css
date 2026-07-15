@@ -1,0 +1,59 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #f0f2f5;    /* 지금 이거 (아주 연한 회색) */  
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #f0f2f5;
+  min-height: 100vh;            /* 화면 높이 꽉 채우기 */
+  display: flex;               /* flex로 가운데 정렬 (마진병합 걱정 없음!) */
+  justify-content: center;     /* 가로 가운데 */
+  align-items: center;         /* 세로 가운데 */
+}
+
+.card {
+  width: 340px;
+  padding: 40px 32px;
+  background-color: white;     /* 하얀 카드 */
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);  /* 그림자로 떠 보이게 */
+  text-align: center;          /* 카드 안 내용 전부 가운데 */
+}
+
+.card img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;          /* 원형 이미지 */
+  object-fit: cover;
+  margin-bottom: 16px;
+}
+
+.card h1 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.card p {
+  color: #666;                 /* 옅은 회색 글씨 */
+  margin-bottom: 20px;
+}
+
+.card nav a {
+  display: inline-block;
+  margin: 4px;
+  padding: 8px 16px;
+  background-color: #4285f4;   /* 파란 버튼 */
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  
+
+}
+
+.highlight {
+  color: #4285f4;    /* 파란색 글씨 */
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+
+  <script type="module">
+    const products = [
+      { id: 1, name: "노트북", price: 1200000, inStock: true },
+      { id: 2, name: "마우스", price: 30000, inStock: false },
+      { id: 3, name: "키보드", price: 50000, inStock: true },
+    ];
+
+    const names = products.map(function(product) {
+      return product.name;
+    });
+
+    const prices = products.map(function(product) {
+      return product.price;
+    });
+
+    const available = products.filter(function(p) {
+      return p.inStock;
+    });
+
+    const mouse = products.find(function(p) {
+      return p.name === "마우스";
+    });
+
+    const availableNames = products
+      .filter(function(p) { return p.inStock; })
+      .map(function(p) { return p.name; });
+
+    console.log(names);
+    console.log(prices);
+    console.log(available);
+    console.log(mouse);
+    console.log(availableNames);
+    console.log(products);
+  </script>
+
+</body>
+</html>

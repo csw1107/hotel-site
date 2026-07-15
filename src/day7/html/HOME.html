@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta charset="UTF-8">
+
+  <!-- Swiper (swiper.html과 동일한 CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>호텔</title>
+
+  <!-- 공통 CSS (header / footer / to-top / 기본초기화) -->
+  <link rel="stylesheet" href="common.css">
+
+  <style>
+    /* ========== 본문 영역 ========== */
+    .content {
+      max-width: 100%;      /* 본문 너비를 화면 전체(100%)로 */
+      margin: 0 auto;
+      padding: 60px 20px;
+      min-height: 500px;
+    }
+
+
+
+    /* ========== 반응형 (1000px 이하) — 페이지 고유 규칙만 ==========
+       header 반응형은 common.css로 이동. */
+    @media (max-width: 1000px) {
+      .section {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .hero {
+        aspect-ratio: 360 / 800;   /* 모바일 배너 비율 (Figma) */
+      }
+
+      .row {
+        flex-direction: column;
+      }
+
+      /* 모바일: 이미지가 화면 폭에 꽉 차게 (세로 배치 시 고정 높이 해제) */
+      .row.rooms-row {
+        overflow: visible;            /* 세로 배치이므로 자름 해제 */
+      }
+      .row.rooms-row .item,
+      .row.event-row .item {
+        width: 100%;                  /* 한 줄에 한 장, 가로폭 꽉 채움 */
+        height: auto;                 /* 고정 높이(300/357) 해제 */
+      }
+      .row.rooms-row .item img,
+      .row.event-row .item img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+
+    }
+
+
+    /* ========== 배너(hero / bottom 공통 구조) ========== */
+    /* 기본값: 위쪽 슬라이더 배너 비율 (Figma 2000x800) */
+    .hero {
+      width: 100%;
+      aspect-ratio: 2000 / 800;
+      position: relative;
+    }
+
+    /* 아래쪽 2024 BEST HOTEL 배너 전용 비율 (Figma 2000x480) */
+    .hero.hero-bottom {
+      aspect-ratio: 2000 / 480;
+    }
+
+    .hero .swiper-slide {
+      position: relative;   /* 자식(hero-text)의 기준점이 됨 */
+        height: 100%;
+    }
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 80%;
+      display: block;
+    }
+
+    .hero-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;             /* 요소 사이 간격 10px */
+    }
+
+    .hero-title {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'KoROAD', sans-serif;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+
+
+    /* SEE MORE 버튼 (투명 배경 + 흰 테두리, hover 시 반전) */
+    .hero-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      border: 1px solid #fff;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .hero-btn:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+    }
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+
+    /* ========== 섹션 공통 (ROOMS / EVENT) ========== */
+    .section {
+      max-width: 1280px;     /* 가로 스크롤을 위해 축소 (사진 일부가 화면 밖으로) */
+      margin: 0 auto;        /* 화면 가운데 정렬 */
+      padding: 40px 20px;
+      text-align: left;     /* 이미지/콘텐츠 좌측 정렬 */
+    }
+
+    .section-title {
+      font-size: 32px;
+      letter-spacing: 4px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+
+    /* ROOMS / EVENT 공통: gap 20px로 간격 통일 (Figma) */
+    .row {
+      display: flex;
+      justify-content: flex-start;   /* 이미지 좌측부터 나열 */
+      gap: 20px;
+    }
+
+    /* ROOMS: 가로 스크롤 방식 — 일부만 보이고 옆으로 넘김.
+       EVENT는 flex-wrap:wrap이라 아래 규칙의 영향 안 받음. */
+    .row.rooms-row {
+      flex-wrap: nowrap;
+      overflow-x: auto;             /* 가로 스크롤 */
+      overflow-y: hidden;           /* 세로는 안 움직이게 */
+      scrollbar-width: none;        /* 스크롤바 숨김 (firefox) */
+      -ms-overflow-style: none;     /* IE / 구형 Edge */
+      cursor: grab;                 /* 드래그 가능함 표시 */
+    }
+    .row.rooms-row::-webkit-scrollbar {
+      display: none;                /* 스크롤바 숨김 (webkit) */
+    }
+    .row.rooms-row .item {
+      flex: 0 0 auto;
+      width: 400px;          /* 이미지 한 장 너비 (Figma) — 고정폭이라 스크롤에 적합 */
+    }
+    .row.rooms-row .item img {
+      width: 400px;
+      height: 300px;         /* 이미지 높이 (Figma) */
+      aspect-ratio: auto;
+      object-fit: cover;     /* 비율 유지하며 잘림 */
+      display: block;
+    }
+
+    .item {
+      min-width: 0;
+    }
+
+    /* EVENT: 이미지 400×341, 캡션 포함 블록 높이 357px (gap 20px 통일) */
+    .row.event-row {
+      flex-wrap: wrap;          /* 좁은 화면에서 줄바꿈 허용 */
+    }
+    .row.event-row .item {
+      flex: 0 0 auto;
+      width: 400px;
+      height: 357px;            /* 이미지 341 + 캡션 영역 포함 (Figma) */
+    }
+    .row.event-row .item img {
+      width: 400px;
+      height: 341px;
+      aspect-ratio: auto;
+      object-fit: cover;        /* 비율 유지하며 잘림 */
+      display: block;
+    }
+
+    .caption {
+      font-size: 14px;
+      color: #555;
+      margin-top: 16px;         /* 357 - 341 = 16px (캡션 영역) */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== 헤더 (공통 컴포넌트로 불러옴) ===== -->
+  <div id="header-slot"></div>
+
+
+  <!-- ===== 1. hero 배너 (swiper 슬라이드, 사진 위에 글자) ===== -->
+  <div class="swiper hero mySwiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <img class="hero-img" src="hero1.jpg" alt="메인 배너1">
+        <div class="hero-text">
+          <h2 class="hero-title">SWEET MOMENT</h2>
+          <a href="#" class="hero-btn">SEE MORE</a>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <img class="hero-img" src="hero2.jpg" alt="메인 배너2">
+        <div class="hero-text">
+          <h2 class="hero-title">URBAN RESORT</h2>
+          <a href="#" class="hero-btn">SEE MORE</a>
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <img class="hero-img" src="hero3.jpg" alt="메인 배너3">
+        <div class="hero-text">
+          <h2 class="hero-title">RELAX & RELIEF</h2>
+          <a href="#" class="hero-btn">SEE MORE</a>
+        </div>
+      </div>
+    </div>
+    <div class="swiper-pagination"></div>  <!-- 하단 점 -->
+  </div>
+
+
+  <!-- ===== 2. ROOMS 섹션 (객실 5장 가로 배치) ===== -->
+  <section class="section">
+    <h2 class="section-title">ROOMS</h2>
+    <div class="row rooms-row">
+      <div class="item"><img src="rooms/rooms1.jpg" alt="객실1"></div>
+      <div class="item"><img src="rooms/rooms2.jpg" alt="객실2"></div>
+      <div class="item"><img src="rooms/rooms3.jpg" alt="객실3"></div>
+      <div class="item"><img src="rooms/rooms4.jpg" alt="객실4"></div>
+      <div class="item"><img src="rooms/rooms5.jpg" alt="객실5"></div>
+    </div>
+  </section>
+
+
+  <!-- ===== 3. EVENT 섹션 (db.json에서 fetch로 동적 렌더링) ===== -->
+  <section class="section">
+    <h2 class="section-title">EVENT</h2>
+    <div class="row event-row" id="eventList">
+      <!-- JS가 db.json의 events 데이터로 채움 -->
+    </div>
+  </section>
+
+
+  <!-- ===== 4. bottom 배너 (2024 BEST HOTEL) ===== -->
+  <div class="hero hero-bottom">
+  <img class="hero-img" src="image/bottom.jpg" alt="하단 배너">
+<img class="hero-overlay" src="image/bottom-title.png" alt="2024 베스트 호텔">
+</div>
+
+
+
+  <!-- ===== 푸터 (공통 컴포넌트로 불러옴) ===== -->
+  <div id="footer-slot"></div>
+
+
+  <!-- ===== 맨 위로 버튼 (공통 컴포넌트로 불러옴) ===== -->
+  <div id="to-top-slot"></div>
+
+
+  <!-- 공통 스크립트: 컴포넌트 로드 + 모바일 메뉴 + 맨 위로 버튼 -->
+  <script src="common.js"></script>
+
+  <script>
+    // (모바일 메뉴 / 맨 위로 버튼 로직은 common.js로 이동)
+
+    // ========== 3. hero 배너 Swiper ==========
+    var heroSwiper = new Swiper(".hero.mySwiper", {
+      loop: true,
+      pagination: {
+        el: ".hero .swiper-pagination",
+        clickable: true,
+      },
+      autoplay: {
+        delay: 2000,
+        disableOnInteraction: false,
+      },
+    });
+
+    // ========== 4. EVENT 섹션: db.json에서 fetch로 동적 렌더링 ==========
+    (async function loadEvents() {
+      const list = document.getElementById("eventList");
+      try {
+        const res = await fetch("../db.json");   // html/ → 상위 day7/db.json
+        if (!res.ok) throw new Error("db.json 불러오기 실패");
+        const data = await res.json();
+        const events = data.events || [];
+
+        list.innerHTML = events.map(ev => `
+          <div class="item">
+            <img src="${ev.img}" alt="${ev.alt || ev.title}">
+            <p class="caption">${ev.title}</p>
+          </div>
+        `).join("");
+      } catch (err) {
+        console.error("EVENT 로드 실패:", err);
+        list.innerHTML = `<p class="caption">이벤트를 불러오지 못했습니다.</p>`;
+      }
+    })();
+  </script>
+
+</body>
+</html>

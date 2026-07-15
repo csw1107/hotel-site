@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>이미지 줌 + 오버레이</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;                 /* 카드끼리 간격 */
+      min-height: 100vh;
+      background: #f0f2f5;
+      flex-wrap: wrap;           /* 화면 좁으면 다음 줄로 */
+    }
+
+    /* 카드 전체 틀 */
+    .img-card {
+      position: relative;   /* 오버레이가 이 안에 딱 맞게 뜨는 기준점 */
+      overflow: hidden;     /* 사진이 커져도 카드 밖으로 안 삐져나오게 자르기 */
+      width: 320px;
+      height: 220px;
+      border-radius: 12px;
+    }
+
+    /* 사진 */
+    .img-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;         /* 사진이 찌그러지지 않게 꽉 채움 */
+      transition: transform 0.3s; /* 커지는 게 부드럽게 */
+    }
+
+    /* 어두운 막 + 글자 */
+    .overlay {
+      position: absolute;
+      inset: 0;                    /* 위/아래/왼쪽/오른쪽 다 0 = 카드 전체를 덮음 */
+      background: rgba(0,0,0,0.55);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;                  /* 평소엔 안 보임 */
+      transition: opacity 0.3s;    /* 나타나는 게 부드럽게 */
+    }
+
+    /* 마우스 올렸을 때 */
+    .img-card:hover img {
+      transform: scale(1.08);      /* 사진 살짝 커짐 */
+    }
+    .img-card:hover .overlay {
+      opacity: 1;                  /* 어두운 막 + 글자 나타남 */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="img-card">
+    <img src="https://picsum.photos/400/300?random=1" alt="예시 사진 1">
+    <div class="overlay">자세히 보기</div>
+  </div>
+
+  <div class="img-card">
+    <img src="https://picsum.photos/400/300?random=2" alt="예시 사진 2">
+    <div class="overlay">자세히 보기</div>
+  </div>
+
+  <div class="img-card">
+    <img src="https://picsum.photos/400/300?random=3" alt="예시 사진 3">
+    <div class="overlay">자세히 보기</div>
+  </div>
+
+</body>
+</html>

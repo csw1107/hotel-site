@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>게시판</title>
+  <style>
+    body {
+  font-family: sans-serif;
+  background: #f5f5f5;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+h1 {
+  color: #333;
+}
+
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  background: #4a7dff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3a6ae0;
+}
+
+#postList {
+  list-style: none;
+  padding: 0;
+}
+
+#postList li {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#postList button {
+  margin-left: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+  </style>
+</head>
+<body>
+   
+  <h1>게시판</h1>
+
+  <!-- 글 쓰는 곳 -->
+  <input id="titleInput" placeholder="제목">
+  <input id="contentInput" placeholder="내용">
+  <button onclick="createPost()">등록</button>
+
+  <hr>
+
+  <!-- 글 목록이 나올 자리 -->
+  <ul id="postList"></ul>
+
+  <script src="../js/crud.js"></script>
+  
+  </body>
+</body>
+</html>

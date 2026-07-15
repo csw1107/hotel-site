@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>계산기2</title>
+
+  <style>
+    :root {
+      --color-primary: #4a90e2;
+      --color-hover: #2266cc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex; justify-content: center;
+      align-items: center; min-height: 100vh;
+      background-color: #f0f2f5;
+    }
+    .calculator {
+      background: #222; border-radius: 16px;
+      padding: 24px; width: 320px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.1);
+    }
+    #display {
+      background: #1a1a1a; color: white;
+      text-align: right;
+      padding: 20px; border-radius: 8px;
+      margin-bottom: 16px;
+      min-height: 90px;
+      word-break: break-all;
+    }
+    #history {
+      font-size: 16px; color: #888;
+      min-height: 20px;
+    }
+    #current {
+      font-size: 32px;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    button {
+      padding: 20px; border: none;
+      background-color: #333;
+      color: white; border-radius: 8px;
+      cursor: pointer; font-size: 18px;
+      transition: background-color 0.2s;
+    }
+    button:hover { filter: brightness(1.3); }
+
+    .op {
+      background-color: var(--color-primary);
+    }
+    .clear, .equal {
+      background-color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <div id="display">
+      <div id="history"></div>
+      <div id="current">0</div>
+    </div>
+
+    <div class="buttons">
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+      <button class="op">/</button>
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+      <button class="op">*</button>
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button class="op">-</button>
+      <button>0</button>
+      <button class="clear">C</button>
+      <button class="equal">=</button>
+      <button class="op">+</button>
+    </div>
+  </div>
+
+  <script>
+  let display = "";              // 전체 식 (계산용)
+  let currentNum = "";           // 지금 입력 중인 숫자만 (아래 화면용)
+  let justCalculated = false;    // 방금 = 눌렀나? (표시등)
+
+  const history = document.querySelector("#history");
+  const current = document.querySelector("#current");
+  const buttons = document.querySelectorAll("button");
+
+  function isOperator(val) {
+    return val === "+" || val === "-" || val === "*" || val === "/";
+  }
+
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener("click", function() {
+      const val = this.innerText;
+
+      if (val === "C") {
+        // 다 비우기
+        display = "";
+        currentNum = "";
+        history.innerText = "";
+        current.innerText = "0";
+        justCalculated = false;
+
+      } else if (val === "=") {
+        // 계산: 위에 식, 아래에 결과
+         if (justCalculated) return;
+         if (display.includes("/0")) {
+          current.innerText = "0으로 나눌 수 없습니다";
+          return;
+        }
+        const answer = String(eval(display));
+        history.innerText = display + "=" + Number(answer).toLocaleString();
+        current.innerText = Number(answer).toLocaleString();
+        display = answer;
+        currentNum = "";
+        justCalculated = true;
+
+      } else if (isOperator(val)) {
+        // 연산자: 식을 위로 올리고, 아래는 비우기
+              // 마지막 글자가 이미 연산자면 → 아무것도 안 하고 나감
+        if (isOperator(display[display.length - 1])) {
+          display = display.slice(0, -1); 
+        }
+        display += val;
+        currentNum = "";               // 입력 중 숫자 상자 비움
+        history.innerText = display;   // 위: 5+
+        current.innerText = "";        // 아래: 비움
+        justCalculated = false;
+
+      } else {
+        // 숫자
+        if (val === "0" && currentNum === "0") return;
+
+        if (justCalculated) {
+          // = 직후면 새로 시작
+          display = val;
+          currentNum = val;
+          history.innerText = "";
+          justCalculated = false;
+        } else {
+          display += val;       // 전체 식엔 이어붙이고
+          currentNum += val;    // 작은 상자에도 이어붙임
+          
+        }
+        current.innerText = currentNum;   // 아래엔 작은 상자만 보여줌
+      }
+    });
+  }
+</script>
+</body>
+</html>

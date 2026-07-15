@@ -1,0 +1,187 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+   background-color: #e8eaed;   
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #333;                 /* 기본 글자색: 진회색 (완전 검정보다 부드러움) */
+  line-height: 1.6;            /* 줄 간격: 글자 높이의 1.6배 → 읽기 편함 */
+  background-color: #fafafa;   /* 아주 연한 회색 배경 */
+  padding-top: 160px;
+}
+
+/* 내용 최대 너비 제한 (78p 핵심 패턴) */
+.container {
+  max-width: 900px;            /* 아무리 넓어도 900px */
+  margin: 0 auto;              /* 가로 가운데 */
+  padding: 0 24px;             /* 양옆 24px 숨 쉴 공간 */
+}
+
+/* === header === */
+header {
+  position: fixed;             /* ★ 추가: 화면에 고정 */
+  top: 0; left: 0;             /* ★ 추가: 맨 위 왼쪽 */
+  width: 100%;                 /* ★ 추가: 가로 꽉 */
+  z-index: 100;                /* ★ 추가: 다른 요소 위로 */
+  background-color: #2c3e50;
+  color: white;
+  padding: 16px 24px;          /* 40px → 16px로 줄임 (고정이라 얇게) */
+  text-align: center;
+}
+header h1 { font-size: 28px; }
+header p {
+  color: rgba(255,255,255,0.75);  /* 흰색인데 75% 투명 → 약간 옅은 흰색 */
+}
+
+/* === nav (가로 메뉴) === */
+nav { 
+   position: fixed;
+  top: 90px;          /* 76px → 90px (헤더 아래로 더 내림) */
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: #34495e;
+ }   /* header보다 살짝 밝은 남색 */
+nav ul {
+  list-style: none;            /* 목록 앞 점(•) 제거 */
+  text-align: center;
+  padding: 12px 24px;
+}
+nav li { display: inline-block; }   /* 세로 쌓임 → 가로 나란히 (67p) */
+nav a {
+  color: white;
+  text-decoration: none;       /* 링크 밑줄 제거 */
+  padding: 8px 16px;
+}
+
+/* === main + section (흰 카드) === */
+main { padding: 40px 24px; }
+section {
+  background-color: white;     /* 흰 카드 */
+  border: 1px solid #e0e0e0;   /* 연한 회색 테두리 */
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 24px;         /* 카드 사이 간격 */
+  min-height: 300px;           /* 카드 최소 높이 (앵커 이동감 위해) */
+}
+section h2 {
+  border-bottom: 2px solid #4a90e2;  /* 제목 밑에 파란 밑줄 */
+  padding-bottom: 8px;
+}
+
+/* === footer === */
+footer {
+  background-color: #2c3e50;   /* header와 같은 남색 */
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  padding: 24px;
+}
+
+#contact-form label {
+  display: block;              /* label을 한 줄 차지하게 (입력칸 위에 오도록) */
+  margin: 16px 0 6px;          /* 위 16px, 아래 6px 간격 */
+  font-weight: bold;
+}
+
+#contact-form input,
+#contact-form select,
+#contact-form textarea {
+  width: 100%;                 /* 가로 꽉 채우기 */
+  padding: 10px 12px;          /* 안쪽 여백 (입력칸 빵빵하게) */
+  border: 1px solid #ccc;      /* 회색 테두리 */
+  border-radius: 8px;          /* 모서리 둥글게 */
+  font-size: 14px;
+}
+
+#contact-form textarea {
+  min-height: 100px;           /* 메시지칸은 좀 더 높게 */
+  resize: vertical;            /* 세로로만 크기 조절 가능 */
+}
+
+#contact-form button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #4a90e2;   /* 파란 버튼 */
+  color: white;
+  border: none;                /* 버튼 기본 테두리 제거 */
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;             /* 마우스 올리면 손가락 모양 (누를 수 있다는 표시) */
+}
+
+#contact-form {
+  max-width: 500px;        /* 폼 너비를 500px로 제한 */
+  margin: 40px auto;       /* 위아래 40px, 좌우 auto → 가로 가운데 */
+}
+
+#contact-form h2 {
+  border-bottom: none;   /* 밑줄 제거 */
+}
+
+/* ...기존 css(폼, 버튼 등)는 그대로... */
+
+/* === 여기부터 표 스타일 추가 === */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 700px;
+  margin: 20px auto;
+  font-size: 14px;
+   border-radius: 12px;    
+  overflow: hidden;    }    
+thead {
+  background-color: #2c3e50;
+  color: white;
+}
+th, td {
+  padding: 12px 16px;
+  text-align: center;
+}
+tbody tr {
+  border-bottom: 1px solid #eee;
+}
+tbody tr:nth-child(even) {
+  background-color: #f7f8fa;
+}
+h1 {
+  text-align: center;
+}
+.skill-list {
+  display: grid;        /* flex → grid 변경 */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.skill-card {
+  
+  background-color: #f7f8fa;   /* 연한 회색 배경 */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.skill-card h3 {
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.skill-card p {
+  font-size: 14px;
+  color: #666;
+}
+.logo-area {
+  display: flex;
+  align-items: center;   /* 세로 가운데 정렬 */
+  gap: 8px;               /* 로고와 태그라인 사이 간격 */
+}
+
+.tagline {
+  font-size: 13px;
+  color: #998c80;
+  margin-top: 4px;   /* 로고보다 글자가 작아서 살짝 아래로 */
+}
