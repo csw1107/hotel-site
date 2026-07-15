@@ -41,8 +41,9 @@
       }
 
       /* 모바일: 이미지가 화면 폭에 꽉 차게 (세로 배치 시 고정 높이 해제) */
-      .row.rooms-row {
-        overflow: visible;            /* 세로 배치이므로 자름 해제 */
+      .row.rooms-row,
+      .row.event-row {
+        overflow: visible;            /* 세로 배치이므로 가로 자름 해제 */
       }
       .row.rooms-row .item,
       .row.event-row .item {
@@ -163,9 +164,10 @@
       gap: 20px;
     }
 
-    /* ROOMS: 가로 스크롤 방식 — 일부만 보이고 옆으로 넘김.
-       EVENT는 flex-wrap:wrap이라 아래 규칙의 영향 안 받음. */
-    .row.rooms-row {
+    /* ROOMS / EVENT 공통: 가로 스크롤 방식 — 일부만 보이고 옆으로 넘김.
+       이미지 크기/간격/정렬은 그대로 두고 배치(한 줄 + overflow-x)만 통일. */
+    .row.rooms-row,
+    .row.event-row {
       flex-wrap: nowrap;
       overflow-x: auto;             /* 가로 스크롤 */
       overflow-y: hidden;           /* 세로는 안 움직이게 */
@@ -173,7 +175,8 @@
       -ms-overflow-style: none;     /* IE / 구형 Edge */
       cursor: grab;                 /* 드래그 가능함 표시 */
     }
-    .row.rooms-row::-webkit-scrollbar {
+    .row.rooms-row::-webkit-scrollbar,
+    .row.event-row::-webkit-scrollbar {
       display: none;                /* 스크롤바 숨김 (webkit) */
     }
     .row.rooms-row .item {
@@ -193,9 +196,6 @@
     }
 
     /* EVENT: 이미지 400×341, 캡션 포함 블록 높이 357px (gap 20px 통일) */
-    .row.event-row {
-      flex-wrap: wrap;          /* 좁은 화면에서 줄바꿈 허용 */
-    }
     .row.event-row .item {
       flex: 0 0 auto;
       width: 400px;
