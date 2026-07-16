@@ -1,0 +1,14 @@
+{
+  "name": "hotel-reservation",
+  "version": "1.0.0",
+  "description": "호텔 예약 실시간 연동 (json-server + db.json)",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "json-server --watch html/db.json --port 3000",
+    "serve": "json-server --watch html/db.json --port 3000"
+  },
+  "dependencies": {
+    "json-server": "^0.17.4"
+  }
+}
