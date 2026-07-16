@@ -12,6 +12,7 @@
 
 body {
   font-family: sans-serif;
+   padding-top: 316px;
 }
 
 a {
@@ -29,7 +30,7 @@ header {
   width: 100%;
   background: #fff;
   padding: 30px 0 0;
-  position: sticky;     /* 스크롤해도 화면 상단에 항상 고정 (문서 흐름 유지 → padding-top 불필요) */
+  position: fixed;     /* 스크롤해도 화면 상단에 항상 고정 (문서 흐름 유지 → padding-top 불필요) */
   top: 0;
   z-index: 100;
 }
