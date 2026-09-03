@@ -24,6 +24,14 @@ li {
   list-style: none;
 }
 
+/* 커스텀 엘리먼트 기본 display 보정
+   (기본이 inline이면 자식 position:fixed header/to-top 레이아웃이 불안정해짐) */
+my-header,
+my-footer,
+my-to-top {
+  display: block;
+}
+
 
 /* ========== 헤더 ========== */
 header {
@@ -58,31 +66,44 @@ header {
   letter-spacing: 1px;
 }
 
-/* 서브메뉴 - 평소엔 숨김 */
+/* 서브메뉴 - 평소엔 숨김.
+   데스크톱은 :hover, 모바일은 JS 가 .open 부여로 노출.
+   각 메뉴 바로 아래에 뜨는 작은 박스 드롭다운 (항목 세로 나열). */
 .submenu {
-  display: none;
-  position: absolute;   /* 붕 떠서 배치 */
+  display: none;               /* 기본 숨김 (아래 hover/open에서 block으로 표시) */
+  position: absolute;          /* 메뉴 아래에 뜸 */
   top: 100%;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%); /* 메뉴 항목 가운데에 맞춤 */
+  min-width: 140px;
+  padding: 8px 0;
   background: #fff;
-  min-width: 100px;
-  padding: 10px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  z-index: 110;
 }
 
 .submenu li {
-  padding: 8px 12px;
+  padding: 8px 18px;
   font-size: 13px;
-  white-space: nowrap;
+  text-align: center;
 }
 
-.submenu li:hover {
-  background: #f5f5f5;
-}
-
-/* 마우스 올리면 서브메뉴 표시 */
-.menu > li:hover .submenu {
+.submenu li a {
+  color: #333;
   display: block;
+}
+
+.submenu li a:hover {
+  color: #255F38;
+}
+
+/* 데스크톱(>1000px): 메뉴에 마우스 올리면 작은 박스 드롭다운 표시.
+   (분기 기준을 JS SUBMENU_MOBILE_MAX=1000 및 모바일 미디어쿼리와 일치시킴) */
+@media (min-width: 1001px) {
+  .menu > li:hover .submenu {
+    display: block;
+  }
 }
 
 
@@ -146,32 +167,110 @@ footer {
 
 
 /* ========== 헤더 반응형 (1000px 이하) ==========
-   모바일에서 메뉴를 세로로 펼친다. */
+   모바일에서 로고/메뉴 축소 + 메뉴 가로 한 줄 정렬. */
 @media (max-width: 1000px) {
+  /* 헤더가 fixed → body 상단 여백도 모바일 헤더 높이에 맞게 축소 */
+  body {
+    padding-top: 130px;
+  }
+
+  header {
+    padding: 16px 0 0;
+  }
+
+  .logo {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
   .menu {
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
-
-  .menu > li {
-    width: 100%;
-    text-align: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
-  }
-
-  .menu > li:hover .submenu {
-    display: none;
-  }
-
-  .submenu {
-    position: static;
-    box-shadow: none;
-    background: #f9f9f9;
-  }
-
-  .menu > li.active .submenu {
-    display: block;
-  }
+  display: flex;
+  flex-direction: row;
+  width: 100%; 
+  height: 35px;
+  padding: 0 15px;
+  gap: 4px;
+  border-top: 1px solid #D8D8D8;
+  justify-content: space-between;    /* align-items: space-between; 대신 이걸로 */
+  align-items: center;           /* 세로 가운데 정렬 추가 */
 }
+
+  .menu > li > a {
+    font-size: 13px;            /* 모바일 메뉴 폰트 축소 */
+  }
+
+  /* 메뉴 바를 서브메뉴의 위치 기준으로 → 전체 폭 드롭다운의 기준점 */
+  .menu {
+    position: relative;
+  }
+
+  /* 모바일에서 li는 static → 서브메뉴가 li가 아닌 .menu 기준으로 배치됨 */
+  .menu > li {
+    position: static;
+  }
+
+  /* 모바일 서브메뉴: 클릭(.open)한 메뉴 "아래"에 .menu 전체 폭으로 펼침.
+     left:0/right:0 가 폭을 결정하므로 화면(뷰포트) 밖으로 잘리지 않음.
+     (이전 100vw + margin-left 계산은 좁은 li 기준이라 좌측이 화면 밖으로
+      밀려 "오시는길"→"시는길" 처럼 잘리던 원인) */
+  .menu > li.open .submenu {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;   /* 항목 왼쪽부터 나열 */
+    gap: 20px;
+    position: absolute;            /* .menu 기준 (li는 static) */
+    left: 0;
+    right: 0;                      /* ← left+right 로 전체 폭 → 뷰포트 안에 완전히 들어옴 */
+    top: 100%;                     /* 메뉴 바로 아래 */
+    transform: none;               /* 데스크톱 translateX(-50%) 무효화 */
+    width: auto;
+    padding: 12px 16px;
+    box-shadow: none;
+    background: #fafafa;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    white-space: normal;
+  }
+
+  /* ===== 푸터 모바일: 여백/폰트 축소, 정보 줄바꿈 ===== */
+  footer {
+    padding: 36px 16px;
+  }
+  .footer-logo {
+    font-size: 26px;
+    margin-bottom: 16px;
+  }
+  .sns {
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .sns i {
+    font-size: 18px;
+  }
+  .footer-info {
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .footer-info p {
+    margin-bottom: 6px;        /* 모바일에서 줄 사이 간격 */
+  }
+  .price-table td:hover {
+  background-color: #f5f5f5; /* 원하는 색으로 바꿔도 돼요 */
+  cursor: pointer;
+}
+
+}
+
+/* ========== 마우스 드래그 가로 스크롤 ==========
+   드래그 스크롤을 쓸 요소에 HTML에서 class="drag-scroll"을 붙인다.
+   JS(initDragScroll)가 드래그 중에 .dragging 클래스를 토글하면
+   커서를 grabbing으로 바꾼다. (선택자 무관하게 동일 동작) */
+.drag-scroll {
+  cursor: grab;
+  user-select: none;          /* 드래그 중 텍스트 드래그 방지 */
+}
+.drag-scroll.dragging {
+  cursor: grabbing;
+}
+

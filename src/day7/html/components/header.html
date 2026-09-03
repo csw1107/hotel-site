@@ -4,36 +4,12 @@
   <h1 class="logo"><a href="HOME.html">H</a></h1>
   <nav>
     <ul class="menu">
-      <li>
-        <a href="#">ABOUT</a>
-        <ul class="submenu">
-          <li><a href="#">호텔 소개</a></li>
-          <li><a href="#">오시는길</a></li>
-        </ul>
-      </li>
-      <li>
-        <a href="#">ROOMS</a>
-        <ul class="submenu">
-          <li><a href="#">ROOM 1</a></li>
-          <li><a href="#">ROOM 2</a></li>
-          <li><a href="#">ROOM 3</a></li>
-        </ul>
-      </li>
-      <li>
-        <a href="#">RESERVATION</a>
-        <ul class="submenu">
-          <li><a href="reservation1.html">예약안내</a></li>
-          <li><a href="reservation2.html">실시간예약</a></li>
-        </ul>
-      </li>
-      <li>
-        <a href="#">COMMUNITY</a>
-        <ul class="submenu">
-          <li><a href="#">공지사항</a></li>
-          <li><a href="#">이벤트</a></li>
-          <li><a href="#">FAQ</a></li>
-        </ul>
-      </li>
+      <li data-menu="ABOUT"><a href="#">ABOUT</a></li>
+      <li data-menu="ROOMS"><a href="#">ROOMS</a></li>
+      <li data-menu="RESERVATION"><a href="#">RESERVATION</a></li>
+      <li data-menu="COMMUNITY"><a href="#">COMMUNITY</a></li>
     </ul>
   </nav>
+  <!-- 서브메뉴(.submenu)는 JS가 각 li 아래에 동적으로 삽입.
+       데스크톱은 CSS :hover, 모바일은 JS 클릭 토글로 동작. -->
 </header>

@@ -7,6 +7,8 @@
     "start": "json-server --watch db.json"
   },
   "dependencies": {
-    "json-server": "^0.17.4"
+    "json-server": "^0.17.4",
+    "puppeteer-core": "^25.3.0",
+    "yauzl": "^3.4.0"
   }
 }

@@ -28,36 +28,89 @@
        header 반응형은 common.css로 이동. */
     @media (max-width: 1000px) {
       .section {
-        padding-left: 0;
-        padding-right: 0;
+        padding: 40px 16px;
       }
 
+      .section-title {
+        font-size: 22px;            /* 모바일 섹션 제목 축소 */
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+      }
+
+      /* 히어로 배너: 모바일 비율 (폭 대비 세로가 긴 형태) */
       .hero {
-        aspect-ratio: 360 / 800;   /* 모바일 배너 비율 (Figma) */
+        aspect-ratio: 360 / 640;
       }
 
-      .row {
-        flex-direction: column;
+      /* 텍스트 오버레이: 모바일 폰트 축소, 중앙 유지 */
+      .hero-title {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+      }
+      .hero-btn {
+        padding: 9px 24px;
+        font-size: 12px;
+        letter-spacing: 1px;
       }
 
-      /* 모바일: 이미지가 화면 폭에 꽉 차게 (세로 배치 시 고정 높이 해제) */
+      /* 슬라이드 인디케이터(점) — 이미지 하단에 고정, 여백 확보 */
+      .hero .swiper-pagination {
+        bottom: 14px;
+      }
+
+      /* 하단 어워드 배너: 모바일 비율 */
+      .hero.hero-bottom {
+        aspect-ratio: 360 / 480;
+      }
+      /* 어워드 배경 어둡게 + 오버레이(제목/인용구 이미지) 중앙 정렬 보정 */
+      .hero.hero-bottom::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);   /* 어두운 배경 강조 */
+        z-index: 1;
+      }
+      .hero.hero-bottom .hero-overlay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;               /* 리본/메달/제목 이미지 비율 유지 */
+        z-index: 2;
+      }
+
+      /* ===== ROOMS / EVENT: 모바일에서 가로 스크롤 카드 ===== */
       .row.rooms-row,
       .row.event-row {
-        overflow: visible;            /* 세로 배치이므로 가로 자름 해제 */
+        flex-wrap: nowrap;          /* 한 줄 가로 유지 (wrap 덮어쓰기) */
+        overflow-x: auto;           /* 가로 스크롤 */
+        overflow-y: hidden;
+        gap: 16px;
+        padding-bottom: 8px;
+        cursor: grab;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;      /* 스크롤바 숨김 (firefox) */
       }
-      .row.rooms-row .item,
-      .row.event-row .item {
-        width: 100%;                  /* 한 줄에 한 장, 가로폭 꽉 채움 */
-        height: auto;                 /* 고정 높이(300/357) 해제 */
-      }
-      .row.rooms-row .item img,
-      .row.event-row .item img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
+      .row.rooms-row::-webkit-scrollbar,
+      .row.event-row::-webkit-scrollbar {
+        display: none;              /* 스크롤바 숨김 (webkit) */
       }
 
+      /* 모바일 카드 폭: 화면의 약 70% (한 장만 온전히 + 다음 장 일부 노출)
+         !important: 데스크톱 고정폭(400px) 규칙과 특이도가 같아 순서로 덮어써지는 것 방지 */
+      .row.rooms-row .item,
+      .row.event-row .item {
+        flex: 0 0 70vw !important;
+        width: 70vw !important;
+        height: auto !important;
+      }
+      .caption {
+        font-size: 13px;
+        margin-top: 10px;
+      }
     }
+
 
 
     /* ========== 배너(hero / bottom 공통 구조) ========== */
@@ -209,6 +262,21 @@
       display: block;
     }
 
+    /* ===== 모바일 카드 이미지 크기 (1000px 이하) =====
+       주의: 위 데스크톱 규칙과 특이도가 같으므로(0,3,1),
+       이 모바일 규칙이 반드시 "뒤에" 와야 소스 순서로 이겨서 적용됨.
+       (미디어쿼리 자체는 특이도에 기여하지 않음) */
+    @media (max-width: 1000px) {
+      .row.rooms-row .item img,
+      .row.event-row .item img {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 4 / 3 !important;
+        object-fit: cover;
+        display: block;
+      }
+    }
+
     .caption {
       font-size: 14px;
       color: #555;
@@ -220,13 +288,71 @@
   gap: 20px;
   flex-wrap: wrap;   /* ← 이 줄 추가: 화면 넘으면 자동으로 다음 줄로 */
 }
+
+
+    /* ========== Swiper 페이지네이션 점 색 (배경 이미지 위라 흰색 계열로) ========== */
+    /* 기본 점: 반투명 흰색 */
+    .hero .swiper-pagination-bullet {
+      background: #fff;
+      opacity: 0.5;
+    }
+    /* 선택된 점: 불투명 흰색 (선명하게) */
+    .hero .swiper-pagination-bullet-active {
+      background: #fff;
+      opacity: 1;
+    }
+
+
+    /* ========== 이미지 확대 모달 (ROOMS / EVENT 클릭) ==========
+       평소 display:none, .show 부여 시 flex(중앙 정렬)로 노출. */
+    .image-modal {
+      display: none;                 /* 기본 숨김 */
+      position: fixed;
+      inset: 0;                      /* 전체 화면 덮기 (top/right/bottom/left:0) */
+      background: rgba(0, 0, 0, 0.8);/* 반투명 검정 배경(오버레이) */
+      z-index: 1000;                 /* 헤더(100)/투탑보다 위 */
+      align-items: center;           /* 세로 가운데 */
+      justify-content: center;       /* 가로 가운데 */
+      padding: 20px;
+    }
+    .image-modal.show {
+      display: flex;                 /* 클릭 시 노출 */
+    }
+    .image-modal__img {
+      max-width: 80%;                /* 화면 폭의 80%까지만 */
+      max-height: 80%;               /* 화면 높이의 80%까지만 */
+      object-fit: contain;           /* 비율 유지하며 맞춤 */
+      display: block;
+    }
+    /* 닫기 버튼(X): 모달 우측 상단 */
+    .image-modal__close {
+      position: absolute;
+      top: 20px;
+      right: 28px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 40px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 1001;
+    }
+    .image-modal__close:hover {
+      opacity: 0.7;
+    }
+
+    /* ROOMS / EVENT 사진: 클릭 가능함을 시각 표시 */
+    .rooms-row .item img,
+    .event-row .item img {
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== 헤더 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="header-slot"></div>
+  <!-- ===== 헤더 (Web Component) ===== -->
+  <my-header></my-header>
 
 
   <!-- ===== 1. hero 배너 (swiper 슬라이드, 사진 위에 글자) ===== -->
@@ -261,7 +387,7 @@
   <!-- ===== 2. ROOMS 섹션 (객실 5장 가로 배치) ===== -->
   <section class="section">
     <h2 class="section-title">ROOMS</h2>
-    <div class="row rooms-row">
+    <div class="row rooms-row drag-scroll">
       <div class="item"><img src="rooms/rooms1.jpg" alt="객실1"></div>
       <div class="item"><img src="rooms/rooms2.jpg" alt="객실2"></div>
       <div class="item"><img src="rooms/rooms3.jpg" alt="객실3"></div>
@@ -274,7 +400,7 @@
   <!-- ===== 3. EVENT 섹션 (db.json에서 fetch로 동적 렌더링) ===== -->
   <section class="section">
     <h2 class="section-title">EVENT</h2>
-    <div class="row event-row" id="eventList">
+    <div class="row event-row drag-scroll" id="eventList">
       <!-- JS가 db.json의 events 데이터로 채움 -->
     </div>
   </section>
@@ -288,19 +414,113 @@
 
 
 
-  <!-- ===== 푸터 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="footer-slot"></div>
+  <!-- ===== 푸터 (Web Component) ===== -->
+  <my-footer></my-footer>
 
 
-  <!-- ===== 맨 위로 버튼 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="to-top-slot"></div>
+  <!-- ===== 맨 위로 버튼 (Web Component) ===== -->
+  <my-to-top></my-to-top>
 
 
-  <!-- 공통 스크립트: 컴포넌트 로드 + 모바일 메뉴 + 맨 위로 버튼 -->
-  <script src="common.js"></script>
+  <!-- ===== 이미지 확대 모달 (ROOMS / EVENT 클릭 시) =====
+       평소엔 display:none, JS가 .show 부여 시 flex로 중앙 표시. -->
+  <div class="image-modal" id="imageModal" aria-hidden="true">
+    <button class="image-modal__close" type="button" aria-label="닫기">&times;</button>
+    <img class="image-modal__img" src="" alt="확대 이미지">
+  </div>
+
+
+  <!-- Web Components: 헤더(모바일 메뉴/서브메뉴) + 푸터 + 맨 위로 -->
+  <script src="MyHeader.js"></script>
+  <script src="MyFooter.js"></script>
+  <script src="MyToTop.js"></script>
 
   <script>
-    // (모바일 메뉴 / 맨 위로 버튼 로직은 common.js로 이동)
+    // ========== 마우스 드래그로 가로 스크롤 (HOME 전용, common.js에서 이관) ==========
+    // 인자로 받은 CSS 선택자 요소에 드래그 스크롤을 적용.
+    // - 요소가 없으면(null) 조용히 종료
+    // - 드래그 중일 때 cursor가 grabbing으로 변하도록 CSS의 .dragging 클래스와 짝을 맞춤
+    // - 이미지 고스트 드래그 방지(dragstart preventDefault) 포함
+    function initDragScroll(selector) {
+      const row = document.querySelector(selector);
+      if (!row) return;
+
+      let isDown = false;     // 마우스가 눌려 있는지
+      let startX = 0;         // 드래그 시작 시점의 마우스 X좌표
+      let scrollLeft = 0;     // 드래그 시작 시점의 가로 스크롤 위치
+
+      // 드래그 시작
+      row.addEventListener("mousedown", (e) => {
+        isDown = true;
+        row.classList.add("dragging");
+        startX = e.pageX - row.offsetLeft;
+        scrollLeft = row.scrollLeft;
+      });
+
+      // 이미지 드래그(고스트 이미지) 방지 — 요소 안의 이미지를 마우스로
+      // 끌 때 브라우저 기본 동작이 뜨는 것을 차단
+      row.addEventListener("dragstart", (e) => e.preventDefault());
+
+      // 마우스가 영역을 벗어나거나 버튼을 놓으면 드래그 종료
+      const endDrag = () => {
+        if (!isDown) return;
+        isDown = false;
+        row.classList.remove("dragging");
+      };
+      row.addEventListener("mouseleave", endDrag);
+      row.addEventListener("mouseup", endDrag);
+
+      // 드래그 이동 — 누른 상태에서만 스크롤 이동량을 반영
+      row.addEventListener("mousemove", (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - row.offsetLeft;
+        const walk = x - startX; // 이동 거리(음수면 왼쪽으로 스크롤)
+        row.scrollLeft = scrollLeft - walk;
+      });
+    }
+
+    // ROOMS 섹션 / EVENT 섹션(#eventList 자체는 정적으로 존재 → 자식이 비동기 fetch로
+    // 채워진 뒤에도 컨테이너에 바인딩된 리스너가 정상 동작함)
+    initDragScroll(".rooms-row");
+    initDragScroll("#eventList");
+
+    // ========== 이미지 확대 모달 (ROOMS / EVENT) ==========
+    // 이벤트 위임(event delegation): document에서 클릭을 잡아 대상이
+    // ROOMS/EVENT 이미지인지 판별. EVENT는 fetch로 동적 렌더링되므로
+    // 위임 방식이 아니면 나중에 추가된 img에 리스너가 안 붙음.
+    (function initImageModal() {
+      const modal = document.getElementById("imageModal");
+      const modalImg = modal.querySelector(".image-modal__img");
+      const closeBtn = modal.querySelector(".image-modal__close");
+
+      // ROOMS/EVENT 이미지 클릭 → 모달 열기
+      document.addEventListener("click", function (e) {
+        const img = e.target.closest(".rooms-row .item img, .event-row .item img");
+        if (!img) return;
+        modalImg.src = img.src;            // 클릭한 이미지 src 복사
+        modalImg.alt = img.alt || "확대 이미지";
+        modal.classList.add("show");       // display:flex 로 노출
+        modal.setAttribute("aria-hidden", "false");
+      });
+
+      // 닫기 헬퍼
+      function closeModal() {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      // 1) 닫기 버튼 클릭
+      closeBtn.addEventListener("click", closeModal);
+      // 2) 어두운 배경(overlay) 클릭 — 이미지 자체 클릭은 제외
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) closeModal();
+      });
+      // 3) ESC 키로도 닫기
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && modal.classList.contains("show")) closeModal();
+      });
+    })();
 
     // ========== 3. hero 배너 Swiper ==========
     var heroSwiper = new Swiper(".hero.mySwiper", {

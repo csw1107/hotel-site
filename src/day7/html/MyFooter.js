@@ -1,0 +1,36 @@
+/* =========================================================
+   <my-footer> 커스텀 엘리먼트
+   - components/footer.html 의 마크업을 그대로 렌더링
+   - 푸터는 이벤트가 없으므로 마크업 생성만 수행
+   ========================================================= */
+
+class MyFooter extends HTMLElement {
+  connectedCallback() {
+    // [가드] 이미 렌더링됐으면 중복 실행 방지
+    if (this.querySelector("footer")) return;
+
+    // components/footer.html 내용 그대로
+    this.innerHTML = `
+      <footer>
+        <div class="footer-logo">H</div>
+        <div class="sns">
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+        <div class="footer-info">
+          <p>경기 성남시 분당구 황새울로329번길 5 한국폴리텍대학 융합기술교육원</p>
+          <p>사업자등록번호 000-00-0000 &nbsp; 전화 012-345-6789 &nbsp; 팩스 01-234-5678</p>
+          <p>이용약관 &nbsp; 개인정보처리방침</p>
+          <p>Copyright ⓒ 2025 예약연습 All rights reserved.</p>
+        </div>
+      </footer>
+    `;
+    // footer는 상호작용 이벤트가 없음 → 추가 바인딩 불필요
+  }
+}
+
+// 중복 정의 방지 가드
+if (!customElements.get("my-footer")) {
+  customElements.define("my-footer", MyFooter);
+}

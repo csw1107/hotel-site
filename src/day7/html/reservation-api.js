@@ -96,3 +96,78 @@ async function createReservation({ roomId, checkIn, checkOut, totalPrice, guests
   if (!res.ok) throw new Error("예약 저장 실패");
   return res.json();   // 저장된 객체(id 포함) 반환
 }
+
+
+/* ---------- 읽기: 객실 정보 (db.json 직접 fetch) ---------- */
+
+// db.json 파일 경로 — reservation3* 페이지와 같은 폴더(html/)에 있음.
+// json-server 없이 정적 파일로도 rooms/price/season 을 한 번에 읽을 수 있어
+// json-server 기동 여부와 무관하게 객실 정보가 표시된다.
+// (예약 저장/조회 fetchBookedDates·createReservation 은 여전히 json-server 필요)
+const DB_JSON_PATH = "db.json";
+
+// room_id 하나에 대한 객실 정보를 db.json 에서 조립해 반환.
+// - rooms[] : 이름/사진/설명/면적/인원 등
+// - price[] : room_id 별 성수기·비수기 × 요일 요금
+// - season[]: season_id → "비수기"/"성수기" 이름 매핑
+//
+// 반환 형태 (페이지에서 바로 쓰도록 정리):
+// {
+//   id, name, name_eng, area, capacity, min,
+//   images: [...],            // "image/xxx.jpg" 전체 경로 배열
+//   desc, desc_eng,
+//   roomPrice: 150000,        // 기본 객실가 (비수기 주중) — 기존 ROOM_PRICE 호환
+//   priceTable: {             // 기존 PRICE_TABLE 호환 (off/peak × 요일)
+//     off:  { weekday, weekend, holiday },
+//     peak: { weekday, weekend, holiday }
+//   }
+// }
+async function getRoom(roomId) {
+  // db.json 파일 전체를 한 번에 fetch (json-server 엔드포인트 3개 호출 대신)
+  const res = await fetch(DB_JSON_PATH);
+  if (!res.ok) throw new Error("db.json 로드 실패");
+  const db = await res.json();
+
+  const rooms = db.rooms || [];
+  const prices = db.price || [];
+  const seasons = db.season || [];
+
+  // 1) room 기본 정보
+  const room = rooms.find(r => Number(r.id) === Number(roomId));
+  if (!room) throw new Error(`room_id ${roomId} 없음`);
+
+  // 2) season_id → "비수기"/"성수기" 이름 (db.json 의 name 필드)
+  //    비수기(이름에 '비수기' 포함) → off, 그 외 → peak
+  const seasonNameById = {};
+  seasons.forEach(s => { seasonNameById[s.id] = s.name; });
+
+  // 3) price[] 에서 이 객실의 행들만 추려 PRICE_TABLE 조립
+  //    db.json 의 season 구조(1=비수기/2=성수기)가 바뀔 수 있으므로,
+  //    이름(비수기/성수기)으로 분류하여 off/peak 에 배정.
+  const priceTable = { off: {}, peak: {} };
+  prices
+    .filter(p => Number(p.room_id) === Number(roomId))
+    .forEach(p => {
+      const key = /비수기/.test(seasonNameById[p.season_id] || "") ? "off" : "peak";
+      priceTable[key] = {
+        weekday: p.weekday_price,
+        weekend: p.weekend_price,
+        holiday: p.holiday_price,
+      };
+    });
+
+  return {
+    id: room.id,
+    name: room.name,
+    name_eng: room.name_eng,
+    area: room.area,
+    capacity: room.capacity,
+    min: room.min,
+    images: room.images || [],
+    desc: room.desc,
+    desc_eng: room.desc_eng,
+    // 기존 하드코딩값(ROOM_PRICE)과 동일 기준: 비수기 주중
+    roomPrice: priceTable.off.weekday,
+    priceTable,
+  };
+}

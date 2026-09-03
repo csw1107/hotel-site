@@ -9,6 +9,9 @@
   <!-- 공통 CSS (header / footer / to-top / 기본초기화) -->
   <link rel="stylesheet" href="common.css">
 
+  <!-- Swiper (객실 대표 사진 슬라이드용 — HOME.html과 동일 CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
   <style>
     /* 페이지 고유 버튼 기본 (공통 CSS엔 없음) */
     button { font-family: inherit; cursor: pointer; }
@@ -64,43 +67,52 @@
       margin-bottom: 50px;
       font-weight: normal;
     }
-
-
-    /* ========== 좌우 2단 배치 ========== */
     .detail-row {
       display: flex;
       gap: 50px;
     }
 
-    .detail-left { flex: 1; }
-    .detail-right { flex: 1; }
+    /* ========== 좌우 2단 배치 ==========
+       ⚠ min-width:0 + overflow:hidden 이 핵심 수정.
+       flex 아이템은 기본 min-width:auto 로 "내용(이미지)의 최소 폭" 이하으로
+       줄어들지 못함. Swiper 초기화 타이밍에 따라 slide 폭이 비정상적으로
+       커지면 그 값이 그대로 flex 최소 폭이 되어 .detail-left 가 33,554,432px(2^25)
+       로 팽창하고 .detail-right 을 찌그러뜨림 → 빈 베이지 박스 증상.
+       min-width:0 으로 이 최소 폭 제한을 풀어 부모(.detail-row) 폭에 맞춰
+       정상 축소되게 함. (이게 없으면 max-width 만으로는 막을 수 없음) */
+    .detail-left {
+      flex: 1;
+      min-width: 0;          /* flex 자식이 부모 폭을 침범하지 못하게 (근본 원인 해결) */
+      overflow: hidden;      /* 안전장치: 그래도 넘치면 잘라냄 */
+    }
+    .detail-right {
+      flex: 1;
+      min-width: 0;
+    }
 
 
-    /* ---------- 왼쪽: 사진 ---------- */
-    .main-photo {
+    /* ---------- 왼쪽: 사진 (Swiper 슬라이드) ---------- */
+    /* 객실 대표 사진 슬라이더 — 기존 썸네일 클릭 방식 대신 좌우 스와이프.
+       width/box-sizing 명시: 컨테이너 폭이 0으로 잡혀 슬라이드 폭이 폭발하는 버그 방지 */
+    .room-swiper {
       width: 100%;
-      aspect-ratio: 1 / 1;
+      max-width: 100%;          /* 부모 폭 이상으로 커지지 않게 */
+      margin-bottom: 12px;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    /* 슬라이드 폭을 명시적으로 고정 → Swiper가 offsetWidth를 안정적으로 읽도록 */
+    .room-swiper .swiper-slide {
+      width: 100%;
+      box-sizing: border-box;
+      aspect-ratio: 1 / 1;     /* 정사각형 비율 유지 */
+    }
+    .room-swiper .swiper-slide img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       display: block;
-      margin-bottom: 12px;
     }
-
-    .thumb-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
-    .thumb {
-      width: 80px;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      cursor: pointer;
-      opacity: 0.7;
-    }
-
-    .thumb:hover,
-    .thumb.active { opacity: 1; }
 
     .room-desc {
       font-size: 13px;
@@ -176,9 +188,10 @@
       opacity: 0.6;             /* 전체 칸을 흐리게 → 선택 불가 느낌 */
     }
 
-    /* 지난 날짜 - 클릭 불가 (회색) */
+    /* 지난 날짜 - 클릭 불가 (회색)
+       !important: 일요일 빨간색(.sun) 등 다른 색 규칙이 덮어쓰지 못하게 강제 */
     .cal-date.past {
-      color: #ccc;
+      color: #ccc !important;
       cursor: default;
     }
 
@@ -322,13 +335,67 @@
       .detail-left { width: 100%; flex: none; }
       .detail-right { width: 100%; flex: none; }
     }
+
+    /* ========== 태블릿/모바일 (768px 이하) — 캘린더 숨김 ==========
+       달력은 PC에서만 노출. 숨김 후 남은 요소(추가 인원/총 합계/버튼) 간격 보정. */
+         @media (max-width: 768px) {
+      .room-thumbs {
+        display: none;
+      }
+
+      .cal-date {
+        height: 44px;
+        font-size: 12px;
+      }
+
+      .cal-date::after {
+        font-size: 8px;
+      }
+
+      .cal-day-name {
+        font-size: 11px;
+        padding: 6px 0;
+      }
+
+      .calendar {
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
+    }
+    
+
+    /* ===== 객실 썸네일 갤러리 (.room-thumbs) =====
+       ★ 기본 규칙은 미디어쿼리 "바깥"에 둬야 PC에서도 4-column이 적용됨.
+         (이전에는 480px 블록 안에만 있어 PC에서 slide 폭이 기본 100% →
+          큰 사진처럼 세로로 쌓이던 원인)
+         여기선 폭(25%)을 명시하지 않는다 — Swiper가 slidesPerView로 폭을
+         직접 제어하므로 CSS width가 있으면 모바일 breakpoints와 충돌함.
+         비율/투명도/클릭 가능 여부만 여기서 담당. */
+    .room-thumbs {
+      width: 100%;
+      margin-top: 12px;
+    }
+    .room-thumbs .swiper-slide {
+      aspect-ratio: 1 / 1;          /* 정사각형 썸네일 */
+      cursor: pointer;
+      opacity: 0.5;                 /* 선택 안 된 것은 흐리게 */
+    }
+    .room-thumbs .swiper-slide-thumb-active {
+      opacity: 1;                   /* 선택된 썸네일만 진하게 */
+    }
+    .room-thumbs .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== 헤더 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="header-slot"></div>
+  <!-- ===== 헤더 (Web Component) ===== -->
+  <my-header></my-header>
 
 
   <!-- ===== 배너 ===== -->
@@ -343,25 +410,25 @@
 
   <!-- ===== 객실 상세 + 예약 ===== -->
   <section class="section">
-    <h2 class="section-title">STANDARD</h2>
+    <h2 class="section-title" id="roomTitle"></h2>
 
     <div class="detail-row">
 
-      <!-- 왼쪽: 사진 -->
+      <!-- 왼쪽: 사진 (Swiper 슬라이드) — 슬라이드는 JS가 db.json 에서 채움 -->
       <div class="detail-left">
-        <img class="main-photo" id="mainPhoto" src="image/std1.jpg" alt="스탠다드 객실">
-
-        <div class="thumb-row">
-          <img class="thumb active" src="image/std1.jpg" alt="사진1">
-          <img class="thumb" src="image/std2.jpg" alt="사진2">
-          <img class="thumb" src="image/std3.jpg" alt="사진3">
-          <img class="thumb" src="image/std4.jpg" alt="사진4">
+        <div class="swiper room-swiper">
+          <div class="swiper-wrapper"></div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-pagination"></div>
         </div>
 
-        <p class="room-desc">
-          스튜디오 타입 파스텔 톤 객실에 휴식을 취할 수 있는 테이블과 체어, 그리고 라탄 타입의 아늑한 체어를 완비한 가장 기본적인 룸입니다.<br>
-          A standard room is the most basic type of hotel room, typically offering a bed, a desk, and a private bathroom.
-        </p>
+         <div class="swiper room-thumbs">
+    <div class="swiper-wrapper"></div>
+  </div>
+
+
+        <p class="room-desc" id="roomDesc"></p>
       </div>
 
       <!-- 오른쪽: 달력 + 예약 -->
@@ -403,12 +470,12 @@
   </section>
 
 
-  <!-- ===== 푸터 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="footer-slot"></div>
+  <!-- ===== 푸터 (Web Component) ===== -->
+  <my-footer></my-footer>
 
 
-  <!-- ===== 맨 위로 버튼 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="to-top-slot"></div>
+  <!-- ===== 맨 위로 버튼 (Web Component) ===== -->
+  <my-to-top></my-to-top>
 
 
   <!-- ===== 경고 모달 ===== -->
@@ -420,45 +487,96 @@
   </div>
 
 
-  <!-- 공통 스크립트: 컴포넌트 로드 + 모바일 메뉴 + 맨 위로 버튼 -->
-  <script src="common.js"></script>
+  <!-- Web Components: 헤더(모바일 메뉴/서브메뉴) + 푸터 + 맨 위로 -->
+  <script src="MyHeader.js"></script>
+  <script src="MyFooter.js"></script>
+  <script src="MyToTop.js"></script>
 
   <!-- 예약 API 모듈 (json-server + db.json 연동) -->
   <script src="reservation-api.js"></script>
 
+  <!-- Swiper JS (객실 대표 사진 슬라이드) -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
   <script>
-    // (모바일 메뉴 / 맨 위로 버튼 로직은 common.js로 이동)
+    // ========== 3. 객실 대표 사진 슬라이더 (Swiper) ==========
+    // DOM/이미지 로드 후 초기화하여 슬라이드 폭 계산이 깨지지 않게 함.
+    // observer/resizeObserver: 헤더 fetch 삽입 등 동적 레이아웃 변화 시 자동 보정.
+    let __roomSwiperInitDone = false;     // 중복 초기화 방지 가드 (load 가 두 번 발생하거나
+                                          // readyState complete 분기와 경쟁 시 두 번 초기화되는 것 차단)
+    function initRoomSwiper() {
+  if (__roomSwiperInitDone) return;
+  if (typeof Swiper === "undefined") return;
+  const el = document.querySelector(".room-swiper");
+  if (!el) return;
+  if (el.clientWidth === 0) {
+    requestAnimationFrame(initRoomSwiper);
+    return;
+  }
+  __roomSwiperInitDone = true;
 
-    // ========== 3. 썸네일 클릭 → 큰 사진 교체 ==========
-    const mainPhoto = document.getElementById("mainPhoto");
-    const thumbs = document.querySelectorAll(".thumb");
+  // ★ 썸네일 Swiper: 반응형.
+  //   PC(>480px) → 4개 한 줄 / 모바일(≤480px) → 2.2개(다음 썸네일 일부 노출)
+  //   → 좁은 화면에서도 좌우 스와이프로 넘길 수 있음 (Swiper 기본 터치 스와이프).
+  //   slidesPerView로 폭을 제어하므로 CSS width는 두지 않음(충돌 방지).
+  //   slideToClickedSlide: 썸네일 클릭 시 그 slide로 썸네일도 이동(선택 동기화)
+  //   watchSlidesVisibility: 각 썸네일 가시성 추적 → 클릭 매핑 정확도 향상
+  const thumbsSwiper = new Swiper(".room-thumbs", {
+    slidesPerView: 2.2,
+    spaceBetween: 8,
+    watchSlidesProgress: true,
+    watchSlidesVisibility: true,
+    slideToClickedSlide: true,
+    breakpoints: {
+      481: { slidesPerView: 4 },   // 481px 이상(태블릿/PC): 4개 한 줄에 모두
+    },
+  });
 
-    thumbs.forEach((thumb) => {
-      thumb.addEventListener("click", () => {
-        mainPhoto.src = thumb.src;
-        thumbs.forEach(t => t.classList.remove("active"));
-        thumb.classList.add("active");
-      });
-    });
+  // ★ 큰 사진 Swiper: loop 사용 안 함.
+  //   이유: loop:true 인 큰 Swiper와 loop:false 인 썸네일을 thumbs로 연결하면
+  //   Swiper가 loop 복제 slide 인덱스와 썸네일 인덱스를 잘못 매핑해
+  //   "썸네일 클릭 → 큰 사진 미전환" 버그가 발생함. loop를 끄면 안정 연동됨.
+  //   (loop+thumbs 조합은 Swiper가 권장하지 않음)
+  new Swiper(".room-swiper", {
+    observer: true,
+    resizeObserver: true,
+    updateOnImagesReady: true,
+    navigation: {
+      nextEl: ".room-swiper .swiper-button-next",
+      prevEl: ".room-swiper .swiper-button-prev",
+    },
+    thumbs: {
+      swiper: thumbsSwiper,
+    },
+    on: {
+      imagesReady: function () { this.update(); },
+    },
+  });
+}
+
+    // 이미지까지 모두 로드된 뒤 초기화 (폭 계산 안정화)
+    // ★ 주의: 슬라이드는 loadRoom() 이 db.json 에서 동적으로 채운다.
+    //   따라서 initRoomSwiper 는 loadRoom 완료 후에 실행되어야 한다.
+    //   아래 호출부는 제거하고, 페이지 초기화 IIFE 에서 loadRoom() 이후에 호출한다.
+    function startRoomSwiper() {
+      if (document.readyState === "complete") {
+        initRoomSwiper();
+      } else {
+        window.addEventListener("load", initRoomSwiper);
+      }
+    }
 
 
     // ========== 4. 달력 (범위 선택) ==========
-    const ROOM_PRICE = 150000;    // ← 객실별로 이 숫자만 바꾸면 됨
+    // ROOM_PRICE / PRICE_TABLE 은 db.json 에서 getRoom(ROOM_ID) 으로 채워진다.
+    let ROOM_PRICE = 0;          // ← 객실별로 이 숫자만 바꾸면 됨
     const MAX_NIGHTS = 6;         // 최대 6박
 
-    // ========== 요금표 (reservation1.html 기준) ==========
+    // ========== 요금표 (db.json 의 price[] → getRoom 이 조립) ==========
     // 성수기(07.01~09.30) / 비수기(그 외) × 요일(주중/주말/휴일)
-    const PRICE_TABLE = {
-      off: {                       // 비수기 (10.01 ~ 06.30)
-        weekday: 150000,           // 주중(월~금)
-        weekend: 180000,           // 주말(토)
-        holiday: 200000            // 휴일(일)
-      },
-      peak: {                       // 성수기 (07.01 ~ 09.30)
-        weekday: 180000,
-        weekend: 200000,
-        holiday: 250000
-      }
+    let PRICE_TABLE = {
+      off: { weekday: 0, weekend: 0, holiday: 0 },
+      peak: { weekday: 0, weekend: 0, holiday: 0 }
     };
 
     // 해당 날짜가 성수기(7~9월)인지 판별 → 요금표 세트 선택
@@ -480,6 +598,50 @@
     const ROOM_ID = 1;
     let BOOKED = [];                 // db에서 불러온 "예약완료" 날짜 배열
 
+    // ========== 객실 정보 (db.json 연동) ==========
+    // getRoom(ROOM_ID) 으로 방 이름/사진/설명/요금을 불러와 화면에 반영.
+    // swiper 슬라이드(메인 + 썸네일)는 images 배열로 동적 생성.
+    // 반환: true(슬라이드 정상 채움) / false(데이터 없음 → Swiper 초기화 건너뜀)
+    async function loadRoom() {
+      try {
+        const room = await getRoom(ROOM_ID);
+        console.log("[loadRoom] room_id", ROOM_ID, "→", room.name_eng, "이미지", room.images);
+
+        // ★ 데이터 방어: images 가 없으면 슬라이드를 만들지 않고 false 반환
+        if (!room.images || !room.images.length) {
+          console.error("[loadRoom] 이미지 데이터가 비어 있어 슬라이드를 만들지 않습니다.");
+          return false;
+        }
+
+        const title = (room.name_eng || "").toUpperCase();
+        document.getElementById("roomTitle").textContent = title;
+
+        // 메인 swiper + 썸네일 swiper 채우기
+        const mainWrap = document.querySelector(".room-swiper .swiper-wrapper");
+        const thumbWrap = document.querySelector(".room-thumbs .swiper-wrapper");
+        const slidesHtml = room.images
+          .map((img, i) => `<div class="swiper-slide"><img src="${img}" alt="${room.name} ${i + 1}"></div>`)
+          .join("");
+        const thumbHtml = room.images
+          .map((img, i) => `<div class="swiper-slide"><img src="${img}" alt="썸네일 ${i + 1}"></div>`)
+          .join("");
+        if (mainWrap) mainWrap.innerHTML = slidesHtml;
+        if (thumbWrap) thumbWrap.innerHTML = thumbHtml;
+
+        // 설명 (한글 + 영문)
+        const descEl = document.getElementById("roomDesc");
+        if (descEl) descEl.innerHTML = `${room.desc}<br>${room.desc_eng}`;
+
+        // 요금 — db.json 의 price[] 조립 결과 반영
+        ROOM_PRICE = room.roomPrice;
+        PRICE_TABLE = room.priceTable;
+        return true;
+      } catch (e) {
+        console.error("[loadRoom] 객실 정보 조회 실패:", e);
+        return false;
+      }
+    }
+
     // 캘린더 렌더 전 예약 날짜 미리 불러두기
     async function loadBooked() {
       try {
@@ -493,11 +655,12 @@
     // 오늘 기준
     const TODAY = new Date();
     TODAY.setHours(0, 0, 0, 0);  // 시간 제거 (날짜만 비교)
-    // "YYYY-MM-DD" 문자열로 변환 (로컬 기준)
-    const TODAY_STR =
-      TODAY.getFullYear() + "-" +
-      String(TODAY.getMonth() + 1).padStart(2, "0") + "-" +
-      String(TODAY.getDate()).padStart(2, "0");
+
+    // "YYYY-MM-DD" 문자열 → Date 객체 (시간 0시로 맞춰 날짜 비교에 사용)
+    function parseDate(str) {
+      const [y, m, d] = str.split("-").map(Number);
+      return new Date(y, m - 1, d);   // 로컬 자정 기준 Date 객체
+    }
 
     let viewYear = TODAY.getFullYear();
     let viewMonth = TODAY.getMonth() + 1;   // 오늘이 속한 달로 열기
@@ -533,13 +696,17 @@
       for (let d = 1; d <= lastDate; d++) {
         const dateStr = `${viewYear}-${String(viewMonth).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
         const dayOfWeek = new Date(viewYear, viewMonth - 1, d).getDay();
+        const cellDate = parseDate(dateStr);   // 실제 Date 객체로 변환 (비교용)
 
+        // 과거(오늘 이전) 판정을 가장 먼저 → sun/booked보다 우선
         let cls = "";
-        if (BOOKED.includes(dateStr)) cls = "booked";
-        else if (dayOfWeek === 0) cls = "sun";
-
-        // 지난 날짜 (오늘 이전) → 회색 + 클릭 불가
-        if (dateStr < TODAY_STR) cls = "past";
+        if (cellDate < TODAY) {
+          cls = "past";                         // 어제 이전 → 회색 + 클릭 불가
+        } else if (BOOKED.includes(dateStr)) {
+          cls = "booked";
+        } else if (dayOfWeek === 0) {
+          cls = "sun";
+        }
 
         // 선택 범위 표시
         if (startDate && endDate && dateStr >= startDate && dateStr <= endDate) {
@@ -578,9 +745,18 @@
 
     // 날짜 클릭 처리
     function handleDateClick(dateStr) {
+      // 방어: 과거(오늘 이전) 날짜는 선택 차단 (Date 객체로 비교)
+      if (parseDate(dateStr) < TODAY) return;
+
       // 아직 시작일 없음 or 이미 범위 완성 → 새로 시작
       if (!startDate || endDate) {
         startDate = dateStr;
+        endDate = null;
+      }
+      // ★ 시작일과 "같은 날짜" 재클릭 → 선택 취소 (초기 상태로 복귀).
+      //   startDate 있고 endDate 없는 상태에서만 동작.
+      else if (dateStr === startDate) {
+        startDate = null;
         endDate = null;
       }
       // 시작일보다 앞 → 시작일 교체
@@ -629,11 +805,20 @@
     }
 
     function updateNavButtons() {
-      // 현재 보는 달이 이번 달이면 더 이전 달로 못 가게 비활성화
+      // 입실·퇴실 모두 선택됨 → 양쪽 버튼 모두 이동 금지
+      if (startDate && endDate) {
+        prevBtnEl.disabled = true;
+        nextBtnEl.disabled = true;
+        return;
+      }
+      // 현재 보는 달이 이번 달(오늘이 속한 달)이면 더 과거로 못 가게 비활성화
       prevBtnEl.disabled = isThisMonth();
+      nextBtnEl.disabled = false;
     }
 
     prevBtnEl.addEventListener("click", () => {
+      // 체크인·체크아웃 모두 선택됨 → 이동 금지
+      if (startDate && endDate) return;
       if (isThisMonth()) return;   // 안전장치: 이번 달이면 이동 금지
       viewMonth--;
       if (viewMonth < 1) { viewMonth = 12; viewYear--; }
@@ -641,6 +826,8 @@
     });
 
     nextBtnEl.addEventListener("click", () => {
+      // 체크인·체크아웃 모두 선택됨 → 이동 금지
+      if (startDate && endDate) return;
       viewMonth++;
       if (viewMonth > 12) { viewMonth = 1; viewYear++; }
       renderCalendar();
@@ -701,9 +888,12 @@
     });
 
 
-    // 페이지 열리면 실행 — 예약 날짜 먼저 불러오고 캘린더 렌더
+    // 페이지 열리면 실행 — 객실 정보·예약 날짜 불러오고 캘린더 렌더
+    // loadRoom 이 슬라이드를 채운 경우에만 startRoomSwiper 로 Swiper 초기화.
+    // (슬라이드가 비었으면 Swiper 초기화를 건너뛴다 — 빈 상태 초기화 시 사진이 안 보이는 원인 방지)
     (async () => {
-      await loadBooked();
+      const [roomLoaded] = await Promise.all([loadRoom(), loadBooked()]);
+      if (roomLoaded) startRoomSwiper();
       renderCalendar();
       updateTotal();
     })();

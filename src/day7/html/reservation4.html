@@ -251,14 +251,15 @@
        header 반응형은 common.css로 이동. */
     @media (max-width: 1000px) {
       .detail-row { flex-direction: column; }
+      .detail-right { display: none; }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== 헤더 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="header-slot"></div>
+  <!-- ===== 헤더 (Web Component) ===== -->
+  <my-header></my-header>
 
 
   <!-- ===== 배너 ===== -->
@@ -293,6 +294,22 @@
           <span class="form-label">추가인원</span>
           <div class="form-field">
             <input type="text" id="extraCount" value="0" readonly>
+          </div>
+        </div>
+
+        <!-- 입실 (읽기 전용 - 체크인 날짜) -->
+        <div class="form-row">
+          <span class="form-label">입실</span>
+          <div class="form-field">
+            <input type="text" id="checkIn" value="" readonly>
+          </div>
+        </div>
+
+        <!-- 퇴실 (읽기 전용 - 체크아웃 날짜) -->
+        <div class="form-row">
+          <span class="form-label">퇴실</span>
+          <div class="form-field">
+            <input type="text" id="checkOut" value="" readonly>
           </div>
         </div>
 
@@ -343,12 +360,12 @@
   </section>
 
 
-  <!-- ===== 푸터 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="footer-slot"></div>
+  <!-- ===== 푸터 (Web Component) ===== -->
+  <my-footer></my-footer>
 
 
-  <!-- ===== 맨 위로 버튼 (공통 컴포넌트로 불러옴) ===== -->
-  <div id="to-top-slot"></div>
+  <!-- ===== 맨 위로 버튼 (Web Component) ===== -->
+  <my-to-top></my-to-top>
 
 
   <!-- ===== 예약완료 모달 ===== -->
@@ -360,16 +377,15 @@
   </div>
 
 
-  <!-- 공통 스크립트: 컴포넌트 로드 + 모바일 메뉴 + 맨 위로 버튼 -->
-  <script src="common.js"></script>
+  <!-- Web Components: 헤더(모바일 메뉴/서브메뉴) + 푸터 + 맨 위로 -->
+  <script src="MyHeader.js"></script>
+  <script src="MyFooter.js"></script>
+  <script src="MyToTop.js"></script>
 
   <!-- 예약 API 모듈 (json-server + db.json 연동) -->
   <script src="reservation-api.js"></script>
 
   <script>
-    // (모바일 메뉴 / 맨 위로 버튼 로직은 common.js로 이동)
-
-
     // ========== 1. 앞 페이지에서 넘어온 정보 받기 ==========
     // 주소창의 ?room=STANDARD&extra=0&start=... 부분을 읽어옴
     const params = new URLSearchParams(window.location.search);
@@ -385,6 +401,11 @@
     document.getElementById("roomName").value = roomName;
     document.getElementById("extraCount").value = extraCount;
     document.getElementById("totalPrice").textContent = totalPrice;
+
+    // 입실/퇴실: 앞 페이지에서 넘어온 체크인/체크아웃 날짜 표시.
+    // start/end 가 없을 수도 있으므로 빈 문자열로 안전하게 처리.
+    document.getElementById("checkIn").value = startDate || "";
+    document.getElementById("checkOut").value = endDate || "";
 
 
     // ========== 2. 달력 (읽기 전용 - 선택된 날짜만 표시) ==========
