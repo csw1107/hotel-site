@@ -14,9 +14,9 @@ const SUBMENU_DATA = {
     { text: "오시는길", href: "#" },
   ],
   ROOMS: [
-    { text: "ROOM 1", href: "#" },
-    { text: "ROOM 2", href: "#" },
-    { text: "ROOM 3", href: "#" },
+    { text: "ROOM 1", href: "reservation3.html" },
+    { text: "ROOM 2", href: "reservation3-2.html" },
+    { text: "ROOM 3", href: "reservation3-3.html" },
   ],
   RESERVATION: [
     { text: "예약 안내", href: "reservation1.html" },
