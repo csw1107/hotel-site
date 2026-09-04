@@ -5,11 +5,11 @@
 
    ▶ json-server 실행 필수:
        cd src/day7 && npm install && npm start
-     → http://localhost:3000/reservation 으로 접근 가능
+     → https://hotel-site-api.onrender.com/reservation 으로 접근 가능
    ========================================================= */
 
 // json-server 주소 (포트 3000, reservation 컬렉션)
-const API_BASE = "http://localhost:3000/reservation";
+const API_BASE = "https://hotel-site-api.onrender.com/reservation";
 
 // 객실 이름(영문) ↔ room_id 매핑. 모든 페이지에서 이걸로 변환.
 const ROOM_ID_MAP = {
